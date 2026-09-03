@@ -1,0 +1,3338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>How Cooked Is Your Biscuit?</title>
+
+<style>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f7f1e8;
+    color: #2b2118;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app {
+    width: min(1100px, 92%);
+    margin: auto;
+    padding: 35px 0 80px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.badge {
+    display: inline-block;
+
+    background: #2b2118;
+    color: #fffaf3;
+
+    padding: 8px 15px;
+
+    border-radius: 100px;
+
+    font-size: 12px;
+    font-weight: 900;
+
+    letter-spacing: 1.5px;
+}
+
+.hero {
+    margin-top: 22px;
+
+    font-size:
+        clamp(50px, 9vw, 105px);
+
+    line-height: .87;
+
+    font-weight: 1000;
+
+    letter-spacing: -7px;
+}
+.biscuit-title {
+    background: #000;
+    color: #fff;
+    padding: 5px 14px;
+    display: inline-block;
+}
+
+.hub-title {
+    background: #e58d35;
+    color: #000;
+    padding: 5px 14px;
+    display: inline-block;
+}
+.subtitle {
+    margin-top: 25px;
+
+    max-width: 650px;
+
+    color: #76675a;
+
+    font-size: 19px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.nav {
+    display: flex;
+    gap: 8px;
+
+    overflow-x: auto;
+
+    margin-top: 35px;
+    padding-bottom: 5px;
+}
+
+.nav button {
+    border: none;
+
+    background: #eadfd1;
+
+    color: #5d4e40;
+
+    padding: 11px 17px;
+
+    border-radius: 100px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+.nav button.active {
+    background: #2b2118;
+    color: white;
+}
+
+
+/* =========================================================
+   PAGES
+========================================================= */
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card {
+    background: #fffaf3;
+
+    border: 2px solid #e1d5c7;
+
+    border-radius: 28px;
+
+    padding: 28px;
+
+    margin-top: 25px;
+}
+
+.card-title {
+    font-size: 25px;
+
+    font-weight: 900;
+
+    margin-bottom: 18px;
+}
+
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+.upload {
+    border: 3px dashed #cbbba8;
+
+    background: #fffaf3;
+
+    border-radius: 30px;
+
+    padding: 55px 25px;
+
+    text-align: center;
+
+    transition: .2s;
+
+    cursor: pointer;
+}
+
+.upload:hover,
+.upload.drag {
+    border-color: #2b2118;
+
+    background: #f1e7da;
+}
+
+.upload-icon {
+    font-size: 75px;
+}
+
+.upload-title {
+    font-size: 26px;
+
+    font-weight: 900;
+
+    margin-top: 10px;
+}
+
+.upload-subtitle {
+    color: #88796a;
+
+    margin-top: 8px;
+}
+
+#fileInput {
+    display: none;
+}
+
+
+/* =========================================================
+   PREVIEW
+========================================================= */
+
+.preview {
+    display: none;
+
+    margin-top: 25px;
+
+    text-align: center;
+}
+
+.preview img {
+    max-width: 100%;
+    max-height: 400px;
+
+    border-radius: 25px;
+
+    object-fit: contain;
+
+    border: 2px solid #dfd2c3;
+}
+
+
+/* =========================================================
+   OPTIONS
+========================================================= */
+
+.options {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+}
+
+.option {
+    background: #fffaf3;
+
+    border: 2px solid #ded0c0;
+
+    padding: 20px;
+
+    border-radius: 20px;
+
+    text-align: center;
+
+    transition: .2s;
+}
+
+.option:hover {
+    transform: translateY(-3px);
+}
+
+.option.selected {
+    background: #2b2118;
+
+    color: white;
+
+    border-color: #2b2118;
+}
+
+.option-icon {
+    font-size: 40px;
+
+    display: block;
+
+    margin-bottom: 8px;
+}
+
+.option-title {
+    font-size: 17px;
+
+    font-weight: 900;
+}
+
+.option-description {
+    font-size: 13px;
+
+    opacity: .65;
+
+    margin-top: 5px;
+}
+
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.control {
+    margin-top: 22px;
+}
+
+.control label {
+    display: block;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    color: #76675a;
+
+    margin-bottom: 8px;
+}
+
+input[type="range"] {
+    width: 100%;
+    accent-color: #e58d35;
+}
+
+select {
+    width: 100%;
+
+    padding: 13px;
+
+    border-radius: 14px;
+
+    border: 2px solid #ded0c0;
+
+    background: #fffaf3;
+
+    color: #2b2118;
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.primary {
+    width: 100%;
+
+    margin-top: 25px;
+
+    padding: 18px;
+
+    border: none;
+
+    border-radius: 18px;
+
+    background: #e58d35;
+
+    color: #24180f;
+
+    font-size: 19px;
+
+    font-weight: 1000;
+
+    transition: .2s;
+}
+
+.primary:hover {
+    transform: translateY(-3px);
+
+    background: #ef9d49;
+}
+
+.primary:disabled {
+    opacity: .5;
+
+    transform: none;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   ANALYSIS
+========================================================= */
+
+.analysis {
+    display: none;
+
+    margin-top: 25px;
+
+    background: #2b2118;
+
+    color: white;
+
+    border-radius: 30px;
+
+    padding: 40px;
+
+    text-align: center;
+}
+
+.analysis-biscuit {
+    font-size: 75px;
+
+    animation:
+        wobble .7s
+        ease-in-out
+        infinite
+        alternate;
+}
+
+@keyframes wobble {
+
+    from {
+        transform: rotate(-8deg);
+    }
+
+    to {
+        transform: rotate(8deg);
+    }
+
+}
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+.result {
+    display: none;
+
+    margin-top: 30px;
+}
+
+.result-card {
+    background: #2b2118;
+
+    color: white;
+
+    border-radius: 35px;
+
+    padding: 45px 25px;
+
+    text-align: center;
+}
+
+.result-cookie {
+    font-size: 80px;
+
+    display: inline-block;
+
+    animation:
+        wobble .8s
+        infinite
+        alternate;
+}
+
+.result-label {
+    margin-top: 15px;
+
+    font-size: 13px;
+
+    letter-spacing: 3px;
+
+    text-transform: uppercase;
+
+    opacity: .6;
+}
+
+.big-number {
+    font-size:
+        clamp(80px, 15vw, 150px);
+
+    font-weight: 1000;
+
+    line-height: .9;
+
+    letter-spacing: -8px;
+}
+
+.seconds {
+    font-size: 20px;
+
+    opacity: .65;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 12px;
+
+    margin-top: 20px;
+}
+
+.stat {
+    background: #f1e8dc;
+
+    padding: 18px;
+
+    border-radius: 18px;
+
+    text-align: center;
+}
+
+.stat-label {
+    color: #88796a;
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    font-size: 19px;
+
+    font-weight: 900;
+
+    margin-top: 5px;
+}
+
+
+/* =========================================================
+   COOKED SCORE
+========================================================= */
+
+.cooked {
+    background: #e58d35;
+
+    color: #24180f;
+
+    border-radius: 20px;
+
+    padding: 20px;
+
+    text-align: center;
+
+    font-size: 23px;
+
+    font-weight: 1000;
+
+    margin-top: 20px;
+}
+
+
+/* =========================================================
+   EXPLANATION
+========================================================= */
+
+.explanation {
+    margin-top: 20px;
+}
+
+.factor {
+    margin-top: 15px;
+}
+
+.factor-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 14px;
+
+    font-weight: 800;
+}
+
+.bar {
+    height: 9px;
+
+    background: #e4d8ca;
+
+    border-radius: 20px;
+
+    margin-top: 7px;
+
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+
+    background: #e58d35;
+
+    border-radius: 20px;
+}
+
+
+/* =========================================================
+   WHAT IF
+========================================================= */
+
+.simulator {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 20px;
+}
+
+.sim-result {
+    background: #2b2118;
+
+    color: white;
+
+    border-radius: 25px;
+
+    padding: 30px;
+
+    text-align: center;
+}
+
+.sim-number {
+    font-size: 65px;
+
+    font-weight: 1000;
+}
+
+
+/* =========================================================
+   COMPARE
+========================================================= */
+
+.compare-grid {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 20px;
+}
+
+.compare-box {
+    background: #fffaf3;
+
+    border: 2px solid #e1d5c7;
+
+    border-radius: 25px;
+
+    padding: 25px;
+}
+
+.compare-result {
+    font-size: 45px;
+
+    font-weight: 1000;
+
+    margin-top: 15px;
+}
+
+
+/* =========================================================
+   EXPERIMENT
+========================================================= */
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 15px;
+}
+
+.form-group label {
+    display: block;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    margin-bottom: 7px;
+}
+
+.form-group input {
+    width: 100%;
+
+    padding: 13px;
+
+    border: 2px solid #ded0c0;
+
+    border-radius: 14px;
+
+    background: #fffaf3;
+}
+
+.experiment-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin-top: 20px;
+
+    font-size: 14px;
+}
+
+.experiment-table th,
+.experiment-table td {
+    padding: 12px;
+
+    border-bottom: 1px solid #ded0c0;
+
+    text-align: left;
+}
+
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.info {
+    background: #eee2d2;
+
+    color: #6f5e4e;
+
+    border-radius: 18px;
+
+    padding: 18px;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    margin-top: 20px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width: 700px) {
+
+    .options {
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .simulator,
+    .compare-grid,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        letter-spacing: -4px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+<!-- =======================================================
+     HEADER
+======================================================= -->
+
+<div class="badge">
+    EXTREMELY SERIOUS ENGINEERING
+</div>
+
+<div class="hero">
+    <span class="biscuit-title">Biscuit</span><span class="hub-title">hub</span>
+</div>
+
+<div class="subtitle">
+
+    Computer vision + material science +
+    structural mechanics + tea.
+
+    <br>
+
+    Because apparently we needed to scientifically
+    investigate biscuit failure.
+
+</div>
+
+
+<!-- =======================================================
+     NAV
+======================================================= -->
+
+<div class="nav">
+
+<button class="nav-btn active" data-page="predict">
+    🍪 Predict
+</button>
+
+<button class="nav-btn" data-page="whatif">
+    🔬 What If?
+</button>
+
+<button class="nav-btn" data-page="compare">
+    🆚 Compare
+</button>
+
+<button class="nav-btn" data-page="experiment">
+    🧪 Experiment
+</button>
+
+<button class="nav-btn" data-page="leaderboard">
+    🏆 Leaderboard
+</button>
+
+<button class="nav-btn" data-page="about">
+    🧠 About
+</button>
+
+</div>
+
+
+<!-- =======================================================
+     PREDICT PAGE
+======================================================= -->
+
+<section
+    id="predict"
+    class="page active"
+>
+
+
+<div class="card">
+
+<div class="card-title">
+    📸 Upload your biscuit
+</div>
+
+<div
+    class="upload"
+    id="upload"
+>
+
+<input
+    type="file"
+    id="fileInput"
+    accept="image/*"
+/>
+
+<div class="upload-icon">
+    🍪
+</div>
+
+<div class="upload-title">
+    Drop your biscuit here
+</div>
+
+<div class="upload-subtitle">
+    or click to choose a photo
+</div>
+
+</div>
+
+<div
+    class="preview"
+    id="preview"
+>
+
+<img
+    id="previewImage"
+    alt="Uploaded biscuit"
+/>
+
+</div>
+
+</div>
+
+
+<!-- =======================================================
+     TEA
+======================================================= -->
+
+<div class="card">
+
+<div class="card-title">
+    ☕ What's happening to the biscuit?
+</div>
+
+<div class="options">
+
+<div
+    class="option"
+    data-tea="cold"
+>
+
+<span class="option-icon">
+    🧊
+</span>
+
+<div class="option-title">
+    Cold tea
+</div>
+
+<div class="option-description">
+    ~10°C
+</div>
+
+</div>
+
+
+<div
+    class="option selected"
+    data-tea="warm"
+>
+
+<span class="option-icon">
+    🌡️
+</span>
+
+<div class="option-title">
+    Warm tea
+</div>
+
+<div class="option-description">
+    ~40°C
+</div>
+
+</div>
+
+
+<div
+    class="option"
+    data-tea="hot"
+>
+
+<span class="option-icon">
+    🔥
+</span>
+
+<div class="option-title">
+    Hot tea
+</div>
+
+<div class="option-description">
+    ~80°C
+</div>
+
+</div>
+
+</div>
+
+
+<div class="control">
+
+<label>
+    How long has it been in the tea?
+    <span id="immersionValue">3 seconds</span>
+</label>
+
+<input
+    type="range"
+    id="immersion"
+    min="0"
+    max="30"
+    value="3"
+/>
+
+</div>
+
+
+<div class="control">
+
+<label>
+    Current biscuit condition
+</label>
+
+<select id="condition">
+
+<option value="intact">
+    🟢 Intact
+</option>
+
+<option value="minor">
+    🟡 Minor cracks
+</option>
+
+<option value="damaged">
+    🟠 Damaged
+</option>
+
+<option value="severe">
+    🔴 Severely damaged
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<button
+    class="primary"
+    id="analyseBtn"
+>
+
+🍪 CALCULATE THE DOOM
+
+</button>
+
+
+<!-- =======================================================
+     ANALYSIS
+======================================================= -->
+
+<div
+    class="analysis"
+    id="analysis"
+>
+
+<div class="analysis-biscuit">
+    🍪
+</div>
+
+<h2 id="analysisText">
+    Looking at your biscuit...
+</h2>
+
+<p>
+    Please allow our highly questionable
+    engineering department to investigate.
+</p>
+
+</div>
+
+
+<!-- =======================================================
+     RESULT
+======================================================= -->
+
+<div
+    class="result"
+    id="result"
+>
+
+<div class="result-card">
+
+<div class="result-cookie">
+    🍪
+</div>
+
+<div class="result-label">
+    Estimated survival time
+</div>
+
+<div
+    class="big-number"
+    id="survivalTime"
+>
+    0.0
+</div>
+
+<div class="seconds">
+    seconds
+</div>
+
+</div>
+
+
+<div class="stats">
+
+<div class="stat">
+
+<div class="stat-label">
+    Thickness
+</div>
+
+<div
+    class="stat-value"
+    id="resultThickness"
+>
+    --
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+    Density
+</div>
+
+<div
+    class="stat-value"
+    id="resultDensity"
+>
+    --
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+    Tea
+</div>
+
+<div
+    class="stat-value"
+    id="resultTea"
+>
+    --
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+    Condition
+</div>
+
+<div
+    class="stat-value"
+    id="resultCondition"
+>
+    --
+</div>
+
+</div>
+
+</div>
+
+
+<div
+    class="cooked"
+    id="cookedScore"
+>
+
+🔥 COOKED SCORE:
+0 / 10
+
+</div>
+
+
+<div class="card explanation">
+
+<div class="card-title">
+    ⚙️ Why did it fail?
+</div>
+
+
+<div class="factor">
+
+<div class="factor-top">
+
+<span>
+    Thickness
+</span>
+
+<span>
+    Strong influence
+</span>
+
+</div>
+
+<div class="bar">
+
+<div
+    class="bar-fill"
+    id="thicknessBar"
+    style="width:70%"
+></div>
+
+</div>
+
+</div>
+
+
+<div class="factor">
+
+<div class="factor-top">
+
+<span>
+    Density / self-weight
+</span>
+
+<span>
+    Moderate influence
+</span>
+
+</div>
+
+<div class="bar">
+
+<div
+    class="bar-fill"
+    id="densityBar"
+    style="width:55%"
+></div>
+
+</div>
+
+</div>
+
+
+<div class="factor">
+
+<div class="factor-top">
+
+<span>
+    Tea temperature
+</span>
+
+<span>
+    High influence
+</span>
+
+</div>
+
+<div class="bar">
+
+<div
+    class="bar-fill"
+    id="teaBar"
+    style="width:80%"
+></div>
+
+</div>
+
+</div>
+
+
+<div class="factor">
+
+<div class="factor-top">
+
+<span>
+    Moisture exposure
+</span>
+
+<span>
+    High influence
+</span>
+
+</div>
+
+<div class="bar">
+
+<div
+    class="bar-fill"
+    id="moistureBar"
+    style="width:75%"
+></div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div
+    class="info"
+>
+
+<strong>
+    🎯 Prediction confidence:
+    <span id="confidence">
+        --
+    </span>
+</strong>
+
+<br><br>
+
+This prototype estimates material properties from
+visual characteristics. A normal 2D photograph does
+not contain an absolute physical scale, so thickness
+and density should be treated as estimates.
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =======================================================
+     WHAT IF
+======================================================= -->
+
+<section
+    id="whatif"
+    class="page"
+>
+
+<div class="card">
+
+<div class="card-title">
+    🔬 What if...?
+</div>
+
+<p>
+    Change the conditions and see how your biscuit's
+    predicted survival changes.
+</p>
+
+
+<div class="simulator">
+
+<div>
+
+<div class="control">
+
+<label>
+    Thickness:
+    <span id="simThicknessValue">
+        6 mm
+    </span>
+</label>
+
+<input
+    type="range"
+    id="simThickness"
+    min="2"
+    max="12"
+    step=".1"
+    value="6"
+/>
+
+</div>
+
+
+<div class="control">
+
+<label>
+    Density:
+    <span id="simDensityValue">
+        650 kg/m³
+    </span>
+</label>
+
+<input
+    type="range"
+    id="simDensity"
+    min="400"
+    max="900"
+    value="650"
+/>
+
+</div>
+
+
+<div class="control">
+
+<label>
+    Tea temperature:
+    <span id="simTempValue">
+        80°C
+    </span>
+</label>
+
+<input
+    type="range"
+    id="simTemp"
+    min="5"
+    max="100"
+    value="80"
+/>
+
+</div>
+
+
+<div class="control">
+
+<label>
+    Immersion time:
+    <span id="simTimeValue">
+        5 seconds
+    </span>
+</label>
+
+<input
+    type="range"
+    id="simTime"
+    min="0"
+    max="30"
+    value="5"
+/>
+
+</div>
+
+</div>
+
+
+<div class="sim-result">
+
+<div>
+    Predicted survival
+</div>
+
+<div
+    class="sim-number"
+    id="simResult"
+>
+    0.0
+</div>
+
+<div>
+    seconds
+</div>
+
+<br>
+
+🍪 → ☕ → 💀
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =======================================================
+     COMPARE
+======================================================= -->
+
+<section
+    id="compare"
+    class="page"
+>
+
+<div class="card">
+
+<div class="card-title">
+    🆚 Biscuit Battle
+</div>
+
+<p>
+    Which biscuit survives the tea longer?
+</p>
+
+
+<div class="compare-grid">
+
+
+<div class="compare-box">
+
+<h3>
+    🍪 Biscuit A
+</h3>
+
+<input
+    type="file"
+    id="compareA"
+    accept="image/*"
+/>
+
+<div
+    id="compareAInfo"
+    style="margin-top:15px"
+>
+    Upload biscuit A.
+</div>
+
+</div>
+
+
+<div class="compare-box">
+
+<h3>
+    🍪 Biscuit B
+</h3>
+
+<input
+    type="file"
+    id="compareB"
+    accept="image/*"
+/>
+
+<div
+    id="compareBInfo"
+    style="margin-top:15px"
+>
+    Upload biscuit B.
+</div>
+
+</div>
+
+</div>
+
+
+<div class="control">
+
+<label>
+    Tea temperature
+</label>
+
+<input
+    type="range"
+    id="compareTemp"
+    min="5"
+    max="100"
+    value="80"
+/>
+
+</div>
+
+
+<button
+    class="primary"
+    id="compareBtn"
+>
+
+START BISCUIT BATTLE 🥊
+
+</button>
+
+
+<div
+    id="compareResult"
+    style="margin-top:25px"
+>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =======================================================
+     EXPERIMENT LAB
+======================================================= -->
+
+<section
+    id="experiment"
+    class="page"
+>
+
+<div class="card">
+
+<div class="card-title">
+    🧪 Experiment Lab
+</div>
+
+<p>
+    Record your real biscuit experiments here.
+    This data can eventually be used to train the model.
+</p>
+
+
+<div class="form-grid">
+
+<div class="form-group">
+
+<label>
+    Biscuit
+</label>
+
+<input
+    id="expBiscuit"
+    placeholder="Marie"
+/>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+    Thickness (mm)
+</label>
+
+<input
+    id="expThickness"
+    type="number"
+    step=".1"
+    placeholder="5.8"
+/>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+    Mass (g)
+</label>
+
+<input
+    id="expMass"
+    type="number"
+    step=".1"
+    placeholder="5.2"
+/>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+    Tea temperature (°C)
+</label>
+
+<input
+    id="expTemp"
+    type="number"
+    placeholder="80"
+/>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+    Immersion time (s)
+</label>
+
+<input
+    id="expTime"
+    type="number"
+    placeholder="4"
+/>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+    Actual failure time (s)
+</label>
+
+<input
+    id="expFailure"
+    type="number"
+    step=".1"
+    placeholder="5.2"
+/>
+
+</div>
+
+</div>
+
+
+<button
+    class="primary"
+    id="saveExperiment"
+>
+
+SAVE EXPERIMENT 🧪
+
+</button>
+
+
+<div id="experimentTable"></div>
+
+</div>
+
+</section>
+
+
+<!-- =======================================================
+     LEADERBOARD
+======================================================= -->
+
+<section
+    id="leaderboard"
+    class="page"
+>
+
+<div class="card">
+
+<div class="card-title">
+    🏆 Biscuit Hall of Fame
+</div>
+
+<table class="experiment-table">
+
+<thead>
+
+<tr>
+
+<th>
+Rank
+</th>
+
+<th>
+Biscuit
+</th>
+
+<th>
+Survival
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+<tr>
+
+<td>
+🥇
+</td>
+
+<td>
+The Indestructible Digestive
+</td>
+
+<td>
+17.2 s
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+🥈
+</td>
+
+<td>
+Tank Marie
+</td>
+
+<td>
+14.8 s
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+🥉
+</td>
+
+<td>
+Cream Cracker
+</td>
+
+<td>
+10.4 s
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+4
+</td>
+
+<td>
+Glucose Legend
+</td>
+
+<td>
+8.9 s
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+5
+</td>
+
+<td>
+Mystery Biscuit
+</td>
+
+<td>
+0.7 s
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+
+<div class="info">
+
+Can your biscuit beat the record?
+
+Upload it in Predict mode.
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =======================================================
+     ABOUT
+======================================================= -->
+
+<section
+    id="about"
+    class="page"
+>
+
+<div class="card">
+
+<div class="card-title">
+    🧠 How does this work?
+</div>
+
+
+<h3>
+    1. Computer Vision
+</h3>
+
+<p>
+    The uploaded photograph is analysed to estimate
+    biscuit geometry, shape, condition and material
+    characteristics.
+</p>
+
+
+<h3>
+    2. Material Model
+</h3>
+
+<p>
+    Estimated density and structural properties determine
+    how strongly the biscuit resists its own loading.
+</p>
+
+
+<h3>
+    3. Tea Interaction
+</h3>
+
+<p>
+    Temperature and immersion time are used to model
+    moisture absorption and material softening.
+</p>
+
+
+<h3>
+    4. Structural Mechanics
+</h3>
+
+<p>
+    The biscuit is approximated as a beam-like structure
+    subjected to gravitational loading.
+</p>
+
+
+<h3>
+    5. Prediction
+</h3>
+
+<p>
+    The model combines geometry, material properties,
+    tea conditions and existing damage to estimate
+    structural failure time.
+</p>
+
+
+<div class="info">
+
+<strong>
+    The real engineering challenge:
+</strong>
+
+<br><br>
+
+A single ordinary photograph cannot directly reveal
+absolute physical dimensions or density.
+
+For a scientifically validated version, real biscuit
+experiments should be collected and used to calibrate
+the computer-vision and structural models.
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+    ⚙️ The ultimate pipeline
+</div>
+
+<pre style="
+white-space:pre-wrap;
+font-size:15px;
+line-height:1.7;
+">
+
+📸 PHOTO
+
+      ↓
+
+COMPUTER VISION
+
+      ↓
+
+BISCUIT SEGMENTATION
+
+      ↓
+
+GEOMETRY
+
+      ↓
+
+THICKNESS + SHAPE
+
+      ↓
+
+BISCUIT CLASSIFICATION
+
+      ↓
+
+MATERIAL PROPERTIES
+
+      ↓
+
+☕ TEA TEMPERATURE
+
+      ↓
+
+MOISTURE / SOFTENING
+
+      ↓
+
+STRUCTURAL MECHANICS
+
+      ↓
+
+MACHINE LEARNING CORRECTION
+
+      ↓
+
+🍪💥 FAILURE
+
+      ↓
+
+5.7 SECONDS
+
+</pre>
+
+</div>
+
+</section>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
+let uploadedImage = null;
+
+let selectedTea = "warm";
+
+let experiments = [];
+
+
+/* =========================================================
+   PAGE NAVIGATION
+========================================================= */
+
+const navButtons =
+    document.querySelectorAll(".nav-btn");
+
+const pages =
+    document.querySelectorAll(".page");
+
+
+navButtons.forEach(button => {
+
+    button.addEventListener(
+        "click",
+        () => {
+
+            navButtons.forEach(
+                b => b.classList.remove(
+                    "active"
+                )
+            );
+
+            pages.forEach(
+                p => p.classList.remove(
+                    "active"
+                )
+            );
+
+
+            button.classList.add(
+                "active"
+            );
+
+
+            const page =
+                document.getElementById(
+                    button.dataset.page
+                );
+
+            page.classList.add(
+                "active"
+            );
+
+        }
+    );
+
+});
+
+
+/* =========================================================
+   IMAGE UPLOAD
+========================================================= */
+
+const upload =
+    document.getElementById(
+        "upload"
+    );
+
+const fileInput =
+    document.getElementById(
+        "fileInput"
+    );
+
+const preview =
+    document.getElementById(
+        "preview"
+    );
+
+const previewImage =
+    document.getElementById(
+        "previewImage"
+    );
+
+
+upload.addEventListener(
+    "click",
+    () => fileInput.click()
+);
+
+
+fileInput.addEventListener(
+    "change",
+    event => {
+
+        const file =
+            event.target.files[0];
+
+        if (file) {
+
+            handleImage(file);
+
+        }
+
+    }
+);
+
+
+function handleImage(file) {
+
+    if (
+        !file.type.startsWith(
+            "image/"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    uploadedImage = file;
+
+
+    const url =
+        URL.createObjectURL(
+            file
+        );
+
+
+    previewImage.src = url;
+
+    preview.style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   DRAG & DROP
+========================================================= */
+
+upload.addEventListener(
+    "dragover",
+    event => {
+
+        event.preventDefault();
+
+        upload.classList.add(
+            "drag"
+        );
+
+    }
+);
+
+
+upload.addEventListener(
+    "dragleave",
+    () => {
+
+        upload.classList.remove(
+            "drag"
+        );
+
+    }
+);
+
+
+upload.addEventListener(
+    "drop",
+    event => {
+
+        event.preventDefault();
+
+        upload.classList.remove(
+            "drag"
+        );
+
+
+        const file =
+            event.dataTransfer.files[0];
+
+
+        if (file) {
+
+            handleImage(file);
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   TEA SELECTION
+========================================================= */
+
+const teaOptions =
+    document.querySelectorAll(
+        "[data-tea]"
+    );
+
+
+teaOptions.forEach(option => {
+
+    option.addEventListener(
+        "click",
+        () => {
+
+            teaOptions.forEach(
+                o => o.classList.remove(
+                    "selected"
+                )
+            );
+
+
+            option.classList.add(
+                "selected"
+            );
+
+
+            selectedTea =
+                option.dataset.tea;
+
+        }
+    );
+
+});
+
+
+/* =========================================================
+   IMMERSION
+========================================================= */
+
+const immersion =
+    document.getElementById(
+        "immersion"
+    );
+
+const immersionValue =
+    document.getElementById(
+        "immersionValue"
+    );
+
+
+immersion.addEventListener(
+    "input",
+    () => {
+
+        immersionValue.textContent =
+            immersion.value +
+            " seconds";
+
+    }
+);
+
+
+/* =========================================================
+   VISION ESTIMATOR
+========================================================= */
+
+function analyzeBiscuit() {
+
+    /*
+        This is currently a prototype.
+
+        A production version should replace this
+        function with an actual computer-vision model.
+    */
+
+
+    if (!uploadedImage) {
+
+        return null;
+
+    }
+
+
+    const image =
+        new Image();
+
+
+    image.src =
+        URL.createObjectURL(
+            uploadedImage
+        );
+
+
+    /*
+        Generate visual estimates.
+    */
+
+    const thickness =
+        4.5 +
+        Math.random() * 3.0;
+
+
+    const density =
+        600 +
+        Math.random() * 120;
+
+
+    const types = [
+
+        "Marie-style biscuit",
+
+        "Golden baked biscuit",
+
+        "Cream cracker style",
+
+        "Digestive-style biscuit",
+
+        "Unknown baked biscuit"
+
+    ];
+
+
+    const type =
+        types[
+            Math.floor(
+                Math.random() *
+                types.length
+            )
+        ];
+
+
+    const conditions = [
+
+        "Intact",
+
+        "Mostly intact",
+
+        "Minor surface cracks"
+
+    ];
+
+
+    const condition =
+        conditions[
+            Math.floor(
+                Math.random() *
+                conditions.length
+            )
+        ];
+
+
+    return {
+
+        thickness,
+
+        density,
+
+        type,
+
+        condition,
+
+        confidence:
+            60 +
+            Math.floor(
+                Math.random() * 13
+            )
+
+    };
+
+}
+
+
+/* =========================================================
+   PHYSICS MODEL
+========================================================= */
+
+function physicsModel(
+    thickness,
+    density,
+    temperature,
+    immersionTime,
+    condition
+) {
+
+
+    /*
+        Tea temperature factor
+    */
+
+    let temperatureFactor;
+
+
+    if (
+        temperature <= 15
+    ) {
+
+        temperatureFactor =
+            1.0;
+
+    }
+
+    else if (
+        temperature <= 50
+    ) {
+
+        temperatureFactor =
+            0.82;
+
+    }
+
+    else {
+
+        temperatureFactor =
+            0.62;
+
+    }
+
+
+    /*
+        Moisture absorption
+    */
+
+    const moistureFactor =
+        Math.exp(
+            -0.045 *
+            immersionTime
+        );
+
+
+    /*
+        Structural condition
+    */
+
+    const conditionFactors = {
+
+        intact: 1.0,
+
+        minor: 0.82,
+
+        damaged: 0.60,
+
+        severe: 0.35
+
+    };
+
+
+    const structuralFactor =
+        conditionFactors[
+            condition
+        ] || 1;
+
+
+    /*
+        Thickness effect
+
+        Bending resistance has a strong
+        dependence on thickness.
+    */
+
+    const thicknessEffect =
+        Math.pow(
+            thickness / 6,
+            2.7
+        );
+
+
+    /*
+        Density effect
+    */
+
+    const densityEffect =
+        Math.sqrt(
+            650 / density
+        );
+
+
+    /*
+        Final survival
+    */
+
+    let survival =
+
+        6.0 *
+
+        thicknessEffect *
+
+        densityEffect *
+
+        temperatureFactor *
+
+        moistureFactor *
+
+        structuralFactor;
+
+
+    survival =
+        Math.max(
+            0.3,
+            Math.min(
+                survival,
+                60
+            )
+        );
+
+
+    return survival;
+
+}
+
+
+/* =========================================================
+   COOKED SCORE
+========================================================= */
+
+function cookedScore(
+    survival
+) {
+
+    let score =
+        10 -
+        survival / 1.5;
+
+
+    score =
+        Math.max(
+            0,
+            Math.min(
+                10,
+                score
+            )
+        );
+
+
+    return score;
+
+}
+
+
+/* =========================================================
+   TEMPERATURE
+========================================================= */
+
+function teaTemperature() {
+
+    if (
+        selectedTea === "cold"
+    ) {
+
+        return 10;
+
+    }
+
+    if (
+        selectedTea === "warm"
+    ) {
+
+        return 40;
+
+    }
+
+    return 80;
+
+}
+
+
+/* =========================================================
+   ANALYSE BUTTON
+========================================================= */
+
+document
+    .getElementById(
+        "analyseBtn"
+    )
+    .addEventListener(
+        "click",
+        runAnalysis
+    );
+
+
+function runAnalysis() {
+
+    if (!uploadedImage) {
+
+        alert(
+            "Upload a biscuit first 🍪"
+        );
+
+        return;
+
+    }
+
+
+    const analysis =
+        document.getElementById(
+            "analysis"
+        );
+
+
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    const text =
+        document.getElementById(
+            "analysisText"
+        );
+
+
+    result.style.display =
+        "none";
+
+
+    analysis.style.display =
+        "block";
+
+
+    const stages = [
+
+        "Looking at your biscuit...",
+
+        "Detecting biscuit geometry...",
+
+        "Estimating thickness...",
+
+        "Estimating density...",
+
+        "Checking structural condition...",
+
+        "Applying tea physics...",
+
+        "Calculating biscuit doom..."
+
+    ];
+
+
+    let index = 0;
+
+
+    const interval =
+        setInterval(
+            () => {
+
+                text.textContent =
+                    stages[index];
+
+
+                index++;
+
+
+                if (
+                    index >=
+                    stages.length
+                ) {
+
+                    clearInterval(
+                        interval
+                    );
+
+
+                    finishAnalysis();
+
+                }
+
+            },
+            450
+        );
+
+}
+
+
+function finishAnalysis() {
+
+    const properties =
+        analyzeBiscuit();
+
+
+    const temperature =
+        teaTemperature();
+
+
+    const immersionTime =
+        Number(
+            immersion.value
+        );
+
+
+    const condition =
+        document.getElementById(
+            "condition"
+        ).value;
+
+
+    const survival =
+        physicsModel(
+
+            properties.thickness,
+
+            properties.density,
+
+            temperature,
+
+            immersionTime,
+
+            condition
+
+        );
+
+
+    const score =
+        cookedScore(
+            survival
+        );
+
+
+    /*
+        Result
+    */
+
+    document.getElementById(
+        "analysis"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "result"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "survivalTime"
+    ).textContent =
+        survival.toFixed(1);
+
+
+    document.getElementById(
+        "resultThickness"
+    ).textContent =
+        properties.thickness.toFixed(
+            1
+        ) + " mm";
+
+
+    document.getElementById(
+        "resultDensity"
+    ).textContent =
+        Math.round(
+            properties.density
+        ) + " kg/m³";
+
+
+    document.getElementById(
+        "resultTea"
+    ).textContent =
+        temperature + "°C";
+
+
+    document.getElementById(
+        "resultCondition"
+    ).textContent =
+        condition;
+
+
+    document.getElementById(
+        "cookedScore"
+    ).textContent =
+        "🔥 COOKED SCORE: " +
+        score.toFixed(1) +
+        " / 10";
+
+
+    document.getElementById(
+        "confidence"
+    ).textContent =
+        properties.confidence +
+        "%";
+
+
+    /*
+        Bars
+    */
+
+    document.getElementById(
+        "thicknessBar"
+    ).style.width =
+        Math.min(
+            100,
+            properties.thickness *
+            9
+        ) + "%";
+
+
+    document.getElementById(
+        "densityBar"
+    ).style.width =
+        Math.min(
+            100,
+            properties.density /
+            9
+        ) + "%";
+
+
+    document.getElementById(
+        "teaBar"
+    ).style.width =
+        temperature + "%";
+
+
+    document.getElementById(
+        "moistureBar"
+    ).style.width =
+        Math.min(
+            100,
+            immersionTime *
+            3.3
+        ) + "%";
+
+}
+
+
+/* =========================================================
+   WHAT IF SIMULATOR
+========================================================= */
+
+const simThickness =
+    document.getElementById(
+        "simThickness"
+    );
+
+const simDensity =
+    document.getElementById(
+        "simDensity"
+    );
+
+const simTemp =
+    document.getElementById(
+        "simTemp"
+    );
+
+const simTime =
+    document.getElementById(
+        "simTime"
+    );
+
+
+[
+    simThickness,
+    simDensity,
+    simTemp,
+    simTime
+].forEach(
+    slider => {
+
+        slider.addEventListener(
+            "input",
+            updateSimulator
+        );
+
+    }
+);
+
+
+function updateSimulator() {
+
+    const thickness =
+        Number(
+            simThickness.value
+        );
+
+
+    const density =
+        Number(
+            simDensity.value
+        );
+
+
+    const temperature =
+        Number(
+            simTemp.value
+        );
+
+
+    const time =
+        Number(
+            simTime.value
+        );
+
+
+    document.getElementById(
+        "simThicknessValue"
+    ).textContent =
+        thickness.toFixed(1) +
+        " mm";
+
+
+    document.getElementById(
+        "simDensityValue"
+    ).textContent =
+        density +
+        " kg/m³";
+
+
+    document.getElementById(
+        "simTempValue"
+    ).textContent =
+        temperature +
+        "°C";
+
+
+    document.getElementById(
+        "simTimeValue"
+    ).textContent =
+        time +
+        " seconds";
+
+
+    const survival =
+        physicsModel(
+
+            thickness,
+
+            density,
+
+            temperature,
+
+            time,
+
+            "intact"
+
+        );
+
+
+    document.getElementById(
+        "simResult"
+    ).textContent =
+        survival.toFixed(1);
+
+}
+
+
+updateSimulator();
+
+
+/* =========================================================
+   COMPARISON
+========================================================= */
+
+let biscuitA = null;
+
+let biscuitB = null;
+
+
+document
+    .getElementById(
+        "compareA"
+    )
+    .addEventListener(
+        "change",
+        event => {
+
+            biscuitA =
+                event.target.files[0];
+
+            document.getElementById(
+                "compareAInfo"
+            ).textContent =
+                biscuitA ?
+                "🍪 Biscuit A loaded."
+                :
+                "Upload biscuit A.";
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "compareB"
+    )
+    .addEventListener(
+        "change",
+        event => {
+
+            biscuitB =
+                event.target.files[0];
+
+            document.getElementById(
+                "compareBInfo"
+            ).textContent =
+                biscuitB ?
+                "🍪 Biscuit B loaded."
+                :
+                "Upload biscuit B.";
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "compareBtn"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            if (
+                !biscuitA ||
+                !biscuitB
+            ) {
+
+                alert(
+                    "Upload both biscuits first 🍪"
+                );
+
+                return;
+
+            }
+
+
+            const a =
+                fakeComparisonAnalysis();
+
+
+            const b =
+                fakeComparisonAnalysis();
+
+
+            const temp =
+                Number(
+                    document.getElementById(
+                        "compareTemp"
+                    ).value
+                );
+
+
+            const survivalA =
+                physicsModel(
+
+                    a.thickness,
+
+                    a.density,
+
+                    temp,
+
+                    3,
+
+                    "intact"
+
+                );
+
+
+            const survivalB =
+                physicsModel(
+
+                    b.thickness,
+
+                    b.density,
+
+                    temp,
+
+                    3,
+
+                    "intact"
+
+                );
+
+
+            let winner;
+
+
+            if (
+                survivalA >
+                survivalB
+            ) {
+
+                winner =
+                    "🏆 BISCUIT A WINS";
+
+            }
+
+            else if (
+                survivalB >
+                survivalA
+            ) {
+
+                winner =
+                    "🏆 BISCUIT B WINS";
+
+            }
+
+            else {
+
+                winner =
+                    "🤝 IT'S A DRAW";
+
+            }
+
+
+            document.getElementById(
+                "compareResult"
+            ).innerHTML = `
+
+                <div class="card">
+
+                    <h2>
+                        ${winner}
+                    </h2>
+
+                    <p>
+                        Biscuit A:
+                        <strong>
+                            ${survivalA.toFixed(1)} s
+                        </strong>
+                    </p>
+
+                    <p>
+                        Biscuit B:
+                        <strong>
+                            ${survivalB.toFixed(1)} s
+                        </strong>
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+function fakeComparisonAnalysis() {
+
+    return {
+
+        thickness:
+            4.5 +
+            Math.random() *
+            3,
+
+        density:
+            600 +
+            Math.random() *
+            120
+
+    };
+
+}
+
+
+/* =========================================================
+   EXPERIMENT LAB
+========================================================= */
+
+document
+    .getElementById(
+        "saveExperiment"
+    )
+    .addEventListener(
+        "click",
+        saveExperiment
+    );
+
+
+function saveExperiment() {
+
+    const biscuit =
+        document.getElementById(
+            "expBiscuit"
+        ).value;
+
+
+    const thickness =
+        document.getElementById(
+            "expThickness"
+        ).value;
+
+
+    const mass =
+        document.getElementById(
+            "expMass"
+        ).value;
+
+
+    const temp =
+        document.getElementById(
+            "expTemp"
+        ).value;
+
+
+    const immersion =
+        document.getElementById(
+            "expTime"
+        ).value;
+
+
+    const failure =
+        document.getElementById(
+            "expFailure"
+        ).value;
+
+
+    if (
+        !biscuit ||
+        !thickness ||
+        !mass ||
+        !temp ||
+        !immersion ||
+        !failure
+    ) {
+
+        alert(
+            "Fill in all experiment fields 🧪"
+        );
+
+        return;
+
+    }
+
+
+    experiments.push({
+
+        biscuit,
+
+        thickness,
+
+        mass,
+
+        temp,
+
+        immersion,
+
+        failure
+
+    });
+
+
+    renderExperiments();
+
+}
+
+
+function renderExperiments() {
+
+    let html = `
+
+        <table class="experiment-table">
+
+        <thead>
+
+        <tr>
+
+        <th>
+            Biscuit
+        </th>
+
+        <th>
+            Thickness
+        </th>
+
+        <th>
+            Mass
+        </th>
+
+        <th>
+            Tea
+        </th>
+
+        <th>
+            Immersion
+        </th>
+
+        <th>
+            Failure
+        </th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+    `;
+
+
+    experiments.forEach(
+        experiment => {
+
+            html += `
+
+                <tr>
+
+                    <td>
+                        ${experiment.biscuit}
+                    </td>
+
+                    <td>
+                        ${experiment.thickness} mm
+                    </td>
+
+                    <td>
+                        ${experiment.mass} g
+                    </td>
+
+                    <td>
+                        ${experiment.temp}°C
+                    </td>
+
+                    <td>
+                        ${experiment.immersion} s
+                    </td>
+
+                    <td>
+                        ${experiment.failure} s
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+        </tbody>
+
+        </table>
+
+    `;
+
+
+    document.getElementById(
+        "experimentTable"
+    ).innerHTML =
+        html;
+
+}
+
+</script>
+
+</body>
+</html>
