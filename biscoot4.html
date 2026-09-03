@@ -1,0 +1,4756 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>BiscuitHub</title>
+
+<!-- =========================================================
+     AI LIBRARIES
+========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.5/dist/teachablemachine-image.min.js"></script>
+
+
+<style>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f7f1e8;
+
+    color: #2b2118;
+
+    overflow: hidden;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   APP
+========================================================= */
+
+.app {
+
+    width: 100%;
+    height: 100vh;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.brand {
+
+    position: fixed;
+
+    top: 25px;
+    left: 30px;
+
+    z-index: 100;
+
+    display: flex;
+
+    font-size: 25px;
+
+    font-weight: 1000;
+
+    letter-spacing: -1px;
+
+    box-shadow:
+        5px 5px 0 #2b2118;
+}
+
+.brand-biscuit {
+
+    background: #2b2118;
+
+    color: white;
+
+    padding:
+        7px 10px;
+}
+
+.brand-hub {
+
+    background: #e58d35;
+
+    color: #000;
+
+    padding:
+        7px 10px;
+}
+
+
+/* =========================================================
+   PAGE SYSTEM
+========================================================= */
+
+.page {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding:
+        90px 25px 30px;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transform:
+        translateX(50px);
+
+    transition:
+        opacity .45s ease,
+        transform .45s ease;
+}
+
+.page.active {
+
+    opacity: 1;
+
+    pointer-events: auto;
+
+    transform:
+        translateX(0);
+}
+
+
+/* =========================================================
+   PAGE CONTENT
+========================================================= */
+
+.page-content {
+
+    width: min(900px, 94vw);
+
+    max-height: calc(100vh - 120px);
+
+    overflow-y: auto;
+
+    padding: 10px;
+
+    scrollbar-width: none;
+}
+
+.page-content::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* =========================================================
+   INTRO
+========================================================= */
+
+.intro {
+
+    text-align: center;
+
+    max-width: 800px;
+
+    margin: auto;
+}
+
+.eyebrow {
+
+    display: inline-block;
+
+    background: #2b2118;
+
+    color: white;
+
+    padding:
+        8px 15px;
+
+    border-radius: 100px;
+
+    font-size: 11px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+}
+
+.intro h1 {
+
+    font-size:
+        clamp(55px, 10vw, 115px);
+
+    line-height: .85;
+
+    letter-spacing: -8px;
+
+    margin:
+        25px 0 20px;
+
+    font-weight: 1000;
+}
+
+.intro h1 span {
+
+    background: #e58d35;
+
+    padding:
+        0 12px;
+
+    color: #000;
+}
+
+.intro p {
+
+    color: #76675a;
+
+    font-size: 18px;
+
+    line-height: 1.5;
+
+    max-width: 600px;
+
+    margin:
+        auto;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.card {
+
+    background: #fffaf3;
+
+    border:
+        2px solid #e1d5c7;
+
+    border-radius: 30px;
+
+    padding: 35px;
+
+    box-shadow:
+        8px 8px 0 rgba(43,33,24,.08);
+}
+
+.card-title {
+
+    font-size: 32px;
+
+    font-weight: 1000;
+
+    letter-spacing: -1px;
+
+    margin-bottom: 8px;
+}
+
+.card-subtitle {
+
+    color: #88796a;
+
+    margin-bottom: 28px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   STEP INDICATOR
+========================================================= */
+
+.steps {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-bottom: 25px;
+}
+
+.step-dot {
+
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    background: #d8ccbd;
+
+    transition: .3s;
+}
+
+.step-dot.active {
+
+    width: 32px;
+
+    border-radius: 20px;
+
+    background: #e58d35;
+}
+
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+.upload {
+
+    border:
+        3px dashed #cbbba8;
+
+    background: #fffaf3;
+
+    border-radius: 25px;
+
+    padding:
+        60px 25px;
+
+    text-align: center;
+
+    transition: .2s;
+
+    cursor: pointer;
+}
+
+.upload:hover,
+.upload.drag {
+
+    border-color: #2b2118;
+
+    background: #f1e7da;
+}
+
+.upload-icon {
+
+    font-size: 75px;
+}
+
+.upload-title {
+
+    font-size: 27px;
+
+    font-weight: 1000;
+
+    margin-top: 10px;
+}
+
+.upload-subtitle {
+
+    color: #88796a;
+
+    margin-top: 8px;
+}
+
+#fileInput {
+    display: none;
+}
+
+
+/* =========================================================
+   PREVIEW
+========================================================= */
+
+.preview {
+
+    display: none;
+
+    text-align: center;
+
+    margin-bottom: 20px;
+}
+
+.preview img {
+
+    max-width: 100%;
+
+    max-height: 320px;
+
+    border-radius: 25px;
+
+    object-fit: contain;
+
+    border:
+        2px solid #dfd2c3;
+
+    box-shadow:
+        5px 5px 0 rgba(43,33,24,.08);
+}
+
+
+/* =========================================================
+   AI CHECK
+========================================================= */
+
+.biscuit-check {
+
+    display: none;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px;
+
+    border-radius: 20px;
+
+    margin-top: 18px;
+
+    border: 2px solid #ded0c0;
+}
+
+.biscuit-check.visible {
+    display: flex;
+}
+
+.biscuit-check.checking {
+
+    background: #eee2d2;
+}
+
+.biscuit-check.success {
+
+    background: #e5f1df;
+
+    border-color: #a9c99b;
+}
+
+.biscuit-check.failure {
+
+    background: #f5dede;
+
+    border-color: #d89a9a;
+}
+
+.biscuit-check-icon {
+
+    font-size: 38px;
+
+    min-width: 45px;
+}
+
+.check-title {
+
+    font-size: 18px;
+
+    font-weight: 1000;
+}
+
+.check-text {
+
+    margin-top: 4px;
+
+    color: #76675a;
+
+    line-height: 1.4;
+}
+
+.roast {
+
+    color: #8b2525;
+
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   OPTIONS
+========================================================= */
+
+.options {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 14px;
+}
+
+.option {
+
+    border:
+        2px solid #ded0c0;
+
+    border-radius: 22px;
+
+    padding: 25px;
+
+    text-align: center;
+
+    transition: .2s;
+
+    background: #fffaf3;
+}
+
+.option:hover {
+
+    transform:
+        translateY(-4px);
+}
+
+.option.selected {
+
+    background: #2b2118;
+
+    color: white;
+
+    border-color: #2b2118;
+
+    transform:
+        translateY(-4px);
+}
+
+.option-icon {
+
+    display: block;
+
+    font-size: 48px;
+
+    margin-bottom: 8px;
+}
+
+.option-title {
+
+    font-weight: 1000;
+
+    font-size: 18px;
+}
+
+.option-description {
+
+    font-size: 13px;
+
+    opacity: .6;
+
+    margin-top: 5px;
+}
+
+
+/* =========================================================
+   CONDITION
+========================================================= */
+
+.condition-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 14px;
+}
+
+.condition-option {
+
+    border:
+        2px solid #ded0c0;
+
+    background: #fffaf3;
+
+    border-radius: 20px;
+
+    padding: 22px;
+
+    transition: .2s;
+
+    text-align: center;
+}
+
+.condition-option:hover {
+
+    transform:
+        translateY(-3px);
+}
+
+.condition-option.selected {
+
+    background: #2b2118;
+
+    color: white;
+
+    border-color: #2b2118;
+}
+
+.condition-icon {
+
+    font-size: 35px;
+
+    display: block;
+
+    margin-bottom: 8px;
+}
+
+.condition-title {
+
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   SLIDER
+========================================================= */
+
+.control {
+
+    margin-top: 28px;
+}
+
+.control-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    margin-bottom: 10px;
+}
+
+.control-value {
+
+    color: #e58d35;
+}
+
+input[type="range"] {
+
+    width: 100%;
+
+    accent-color: #e58d35;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.button-row {
+
+    display: flex;
+
+    gap: 12px;
+
+    margin-top: 28px;
+}
+
+.primary {
+
+    flex: 1;
+
+    border: none;
+
+    border-radius: 17px;
+
+    padding: 17px;
+
+    background: #e58d35;
+
+    color: #24180f;
+
+    font-size: 17px;
+
+    font-weight: 1000;
+
+    transition: .2s;
+}
+
+.primary:hover {
+
+    transform:
+        translateY(-3px);
+
+    background: #ef9d49;
+}
+
+.primary:disabled {
+
+    opacity: .4;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+.secondary {
+
+    border:
+        2px solid #ded0c0;
+
+    background: #fffaf3;
+
+    color: #2b2118;
+
+    border-radius: 17px;
+
+    padding:
+        15px 22px;
+
+    font-weight: 900;
+}
+
+.secondary:hover {
+
+    background: #f1e7da;
+}
+
+
+/* =========================================================
+   DUNK ANIMATION PAGE
+========================================================= */
+
+.processing {
+
+    text-align: center;
+
+    width: 100%;
+}
+
+.processing-title {
+
+    color: white;
+
+    font-size:
+        clamp(30px, 5vw, 55px);
+
+    font-weight: 1000;
+
+    margin-top: 20px;
+}
+
+.processing-subtitle {
+
+    color: #c9bdb0;
+
+    margin-top: 10px;
+}
+
+
+/* =========================================================
+   TEA CUP
+========================================================= */
+
+.dunk-scene {
+
+    width: 320px;
+
+    height: 310px;
+
+    margin:
+        0 auto;
+
+    position: relative;
+}
+
+
+/* biscuit */
+
+.dunk-biscuit {
+
+    position: absolute;
+
+    width: 115px;
+
+    height: 52px;
+
+    background: #d49a5b;
+
+    border-radius: 30px;
+
+    left: 103px;
+
+    top: 20px;
+
+    z-index: 5;
+
+    transform:
+        rotate(-18deg);
+
+    box-shadow:
+        inset 0 -6px 0 rgba(90,50,20,.15);
+
+    animation:
+        dunk 3.8s
+        ease-in-out
+        forwards;
+}
+
+
+/* biscuit dots */
+
+.dunk-biscuit::before {
+
+    content: "•  •  •  •  •";
+
+    position: absolute;
+
+    color: #8d6035;
+
+    font-size: 18px;
+
+    letter-spacing: 5px;
+
+    left: 14px;
+
+    top: 13px;
+}
+
+
+/* cup */
+
+.cup {
+
+    position: absolute;
+
+    width: 230px;
+
+    height: 125px;
+
+    background: #fffaf3;
+
+    border:
+        7px solid #ded0c0;
+
+    border-top: none;
+
+    border-radius:
+        0 0 45px 45px;
+
+    left: 45px;
+
+    bottom: 15px;
+
+    z-index: 3;
+}
+
+
+/* tea */
+
+.tea {
+
+    position: absolute;
+
+    width: 216px;
+
+    height: 72px;
+
+    background: #a86632;
+
+    border-radius:
+        0 0 40px 40px;
+
+    left: 52px;
+
+    bottom: 60px;
+
+    z-index: 2;
+}
+
+
+/* tea surface */
+
+.tea-surface {
+
+    position: absolute;
+
+    width: 216px;
+
+    height: 30px;
+
+    background: #c27a3c;
+
+    border-radius: 50%;
+
+    left: 52px;
+
+    bottom: 118px;
+
+    z-index: 4;
+}
+
+
+/* handle */
+
+.handle {
+
+    position: absolute;
+
+    width: 65px;
+
+    height: 75px;
+
+    border:
+        10px solid #ded0c0;
+
+    border-left: none;
+
+    border-radius:
+        0 45px 45px 0;
+
+    right: 2px;
+
+    bottom: 60px;
+
+    z-index: 1;
+}
+
+
+/* dunk animation */
+
+@keyframes dunk {
+
+    0% {
+
+        top: 20px;
+
+        transform:
+            rotate(-18deg);
+    }
+
+    25% {
+
+        top: 85px;
+
+        transform:
+            rotate(-5deg);
+    }
+
+    45% {
+
+        top: 135px;
+
+        transform:
+            rotate(8deg);
+    }
+
+    60% {
+
+        top: 105px;
+
+        transform:
+            rotate(-4deg);
+    }
+
+    72% {
+
+        top: 145px;
+
+        transform:
+            rotate(5deg)
+            scaleX(.98);
+    }
+
+    82% {
+
+        top: 145px;
+
+        transform:
+            rotate(5deg)
+            scaleX(.75)
+            scaleY(.75);
+    }
+
+    88% {
+
+        top: 150px;
+
+        transform:
+            rotate(15deg)
+            scaleX(.55)
+            scaleY(.55);
+    }
+
+    100% {
+
+        top: 155px;
+
+        transform:
+            rotate(35deg)
+            scaleX(.15)
+            scaleY(.15);
+
+        opacity: 0;
+    }
+}
+
+
+/* crumbs */
+
+.crumb {
+
+    position: absolute;
+
+    width: 8px;
+
+    height: 8px;
+
+    background: #d49a5b;
+
+    border-radius: 50%;
+
+    opacity: 0;
+
+    z-index: 6;
+}
+
+.crumb.one {
+
+    left: 125px;
+    top: 150px;
+
+    animation:
+        crumb 3.8s
+        forwards;
+}
+
+.crumb.two {
+
+    left: 170px;
+    top: 155px;
+
+    animation:
+        crumb2 3.8s
+        forwards;
+}
+
+@keyframes crumb {
+
+    0%, 70% {
+        opacity: 0;
+    }
+
+    75% {
+        opacity: 1;
+    }
+
+    100% {
+
+        opacity: 0;
+
+        transform:
+            translate(-30px, 70px);
+    }
+}
+
+@keyframes crumb2 {
+
+    0%, 70% {
+        opacity: 0;
+    }
+
+    75% {
+        opacity: 1;
+    }
+
+    100% {
+
+        opacity: 0;
+
+        transform:
+            translate(35px, 55px);
+    }
+}
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+.result-page {
+
+    text-align: center;
+
+    width: 100%;
+}
+
+.result-card {
+
+    background: #2b2118;
+
+    color: white;
+
+    border-radius: 35px;
+
+    padding:
+        40px 30px;
+
+    width: min(800px, 94vw);
+
+    margin: auto;
+}
+
+.result-cookie {
+
+    font-size: 70px;
+
+    animation:
+        wobble .8s
+        infinite
+        alternate;
+}
+
+@keyframes wobble {
+
+    from {
+        transform:
+            rotate(-8deg);
+    }
+
+    to {
+        transform:
+            rotate(8deg);
+    }
+}
+
+.result-label {
+
+    margin-top: 15px;
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 3px;
+
+    opacity: .55;
+}
+
+.big-number {
+
+    font-size:
+        clamp(80px, 14vw, 145px);
+
+    line-height: .85;
+
+    font-weight: 1000;
+
+    letter-spacing: -8px;
+}
+
+.seconds {
+
+    font-size: 20px;
+
+    opacity: .6;
+}
+
+.stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 10px;
+
+    margin-top: 18px;
+}
+
+.stat {
+
+    background: #f1e8dc;
+
+    color: #2b2118;
+
+    padding: 16px;
+
+    border-radius: 17px;
+}
+
+.stat-label {
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    color: #88796a;
+
+    letter-spacing: 1px;
+}
+
+.stat-value {
+
+    font-size: 17px;
+
+    font-weight: 1000;
+
+    margin-top: 5px;
+}
+
+.cooked {
+
+    margin-top: 15px;
+
+    padding: 18px;
+
+    background: #e58d35;
+
+    color: #24180f;
+
+    border-radius: 18px;
+
+    font-size: 21px;
+
+    font-weight: 1000;
+}
+
+
+/* =========================================================
+   FACTORS
+========================================================= */
+
+.factor-card {
+
+    background: #fffaf3;
+
+    border:
+        2px solid #e1d5c7;
+
+    border-radius: 25px;
+
+    padding: 25px;
+
+    margin-top: 18px;
+}
+
+.factor {
+
+    margin-top: 15px;
+}
+
+.factor-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 13px;
+
+    font-weight: 900;
+}
+
+.bar {
+
+    height: 8px;
+
+    background: #e4d8ca;
+
+    border-radius: 20px;
+
+    margin-top: 7px;
+
+    overflow: hidden;
+}
+
+.bar-fill {
+
+    height: 100%;
+
+    background: #e58d35;
+
+    border-radius: 20px;
+
+    transition:
+        width .5s;
+}
+
+
+/* =========================================================
+   OTHER PAGES
+========================================================= */
+
+.simple-page {
+
+    width: min(1000px, 94vw);
+}
+
+.simple-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 20px;
+}
+
+.compare-preview {
+
+    margin-top: 15px;
+
+    width: 100%;
+
+    height: 200px;
+
+    border:
+        2px dashed #cbbba8;
+
+    border-radius: 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+    color: #88796a;
+}
+
+.compare-preview img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: contain;
+}
+
+.compare-upload {
+
+    margin-top: 15px;
+
+    width: 100%;
+
+    padding: 12px;
+
+    border:
+        2px solid #ded0c0;
+
+    border-radius: 14px;
+
+    background: #fffaf3;
+}
+
+.battle-result {
+
+    text-align: center;
+
+    margin-top: 25px;
+
+    padding: 25px;
+
+    background: #2b2118;
+
+    color: white;
+
+    border-radius: 25px;
+
+    font-size: 25px;
+
+    font-weight: 1000;
+}
+
+
+/* =========================================================
+   WHAT IF
+========================================================= */
+
+.simulator {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 25px;
+}
+
+.sim-result {
+
+    background: #2b2118;
+
+    color: white;
+
+    border-radius: 25px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-direction: column;
+
+    min-height: 300px;
+}
+
+.sim-number {
+
+    font-size: 70px;
+
+    font-weight: 1000;
+}
+
+
+/* =========================================================
+   EXPERIMENT
+========================================================= */
+
+.form-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 15px;
+}
+
+.form-group label {
+
+    display: block;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    margin-bottom: 6px;
+}
+
+.form-group input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border:
+        2px solid #ded0c0;
+
+    border-radius: 12px;
+
+    background: #fffaf3;
+}
+
+.experiment-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin-top: 20px;
+
+    font-size: 13px;
+}
+
+.experiment-table th,
+.experiment-table td {
+
+    padding: 10px;
+
+    border-bottom:
+        1px solid #ded0c0;
+
+    text-align: left;
+}
+
+
+/* =========================================================
+   ABOUT
+========================================================= */
+
+.about-step {
+
+    padding:
+        18px 0;
+
+    border-bottom:
+        1px solid #e1d5c7;
+}
+
+.about-step h3 {
+
+    margin-bottom: 5px;
+}
+
+.about-step p {
+
+    color: #76675a;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width: 700px) {
+
+    .brand {
+
+        top: 15px;
+        left: 15px;
+
+        font-size: 20px;
+    }
+
+    .page {
+
+        padding:
+            75px 15px 20px;
+    }
+
+    .card {
+
+        padding: 22px;
+    }
+
+    .options {
+
+        grid-template-columns: 1fr;
+    }
+
+    .condition-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .simple-grid,
+    .simulator,
+    .form-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .intro h1 {
+
+        letter-spacing: -5px;
+    }
+
+    .dunk-scene {
+
+        transform:
+            scale(.85);
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+<!-- =========================================================
+     BRAND
+========================================================= -->
+
+<div class="brand">
+
+    <div class="brand-biscuit">
+        Biscuit
+    </div>
+
+    <div class="brand-hub">
+        hub
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     PAGE 0 — HOME
+========================================================= -->
+
+<section
+    class="page active"
+    id="homePage"
+>
+
+<div class="page-content">
+
+<div class="intro">
+
+<div class="eyebrow">
+    EXTREMELY SERIOUS ENGINEERING
+</div>
+
+<h1>
+    Biscuit<span>hub</span>
+</h1>
+
+<p>
+
+    The world's least necessary application
+    of computer vision, structural mechanics,
+    material science and tea.
+
+    <br><br>
+
+    <strong>
+        Find out exactly how cooked your biscuit is.
+    </strong>
+
+</p>
+
+<button
+    class="primary"
+    id="startBtn"
+    style="max-width:400px;margin-top:30px;"
+>
+
+START THE EXPERIMENT 🍪
+
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     PAGE 1 — UPLOAD
+========================================================= -->
+
+<section
+    class="page"
+    id="uploadPage"
+>
+
+<div class="page-content">
+
+<div class="card">
+
+<div class="steps">
+
+<div class="step-dot active"></div>
+<div class="step-dot"></div>
+<div class="step-dot"></div>
+<div class="step-dot"></div>
+
+</div>
+
+<div class="card-title">
+    📸 Show me the biscuit.
+</div>
+
+<div class="card-subtitle">
+
+    Upload a photo and our highly questionable
+    AI department will determine whether you're
+    actually holding a biscuit.
+
+</div>
+
+
+<div
+    class="upload"
+    id="upload"
+>
+
+<input
+    type="file"
+    id="fileInput"
+    accept="image/*"
+/>
+
+<div class="upload-icon">
+    🍪
+</div>
+
+<div class="upload-title">
+    Drop your biscuit here
+</div>
+
+<div class="upload-subtitle">
+    or click to choose a photo
+</div>
+
+</div>
+
+
+<div
+    class="preview"
+    id="preview"
+>
+
+<img
+    id="previewImage"
+    alt="Uploaded biscuit"
+/>
+
+</div>
+
+
+<div
+    id="biscuitCheck"
+    class="biscuit-check"
+>
+
+<div
+    class="biscuit-check-icon"
+    id="biscuitCheckIcon"
+>
+    🤖
+</div>
+
+<div>
+
+<div
+    class="check-title"
+    id="biscuitCheckTitle"
+>
+    Waiting for image...
+</div>
+
+<div
+    class="check-text"
+    id="biscuitCheckText"
+>
+    Biscuit AI is standing by.
+</div>
+
+</div>
+
+</div>
+
+
+<div
+    class="ai-status"
+    style="
+        text-align:center;
+        margin-top:12px;
+        font-size:13px;
+        color:#88796a;
+    "
+>
+
+🤖 AI status:
+<span id="modelStatus">
+    Loading...
+</span>
+
+</div>
+
+
+<div class="button-row">
+
+<button
+    class="secondary"
+    id="homeFromUpload"
+>
+    ← Back
+</button>
+
+<button
+    class="primary"
+    id="uploadNext"
+    disabled
+>
+    That's my biscuit →
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     PAGE 2 — TEA
+========================================================= -->
+
+<section
+    class="page"
+    id="teaPage"
+>
+
+<div class="page-content">
+
+<div class="card">
+
+<div class="steps">
+
+<div class="step-dot active"></div>
+<div class="step-dot active"></div>
+<div class="step-dot"></div>
+<div class="step-dot"></div>
+
+</div>
+
+<div class="card-title">
+    ☕ Now let's talk tea.
+</div>
+
+<div class="card-subtitle">
+
+    Because temperature and immersion time
+    are obviously critical engineering parameters.
+
+</div>
+
+
+<div class="options">
+
+<div
+    class="option"
+    data-tea="cold"
+>
+
+<span class="option-icon">
+    🧊
+</span>
+
+<div class="option-title">
+    Cold tea
+</div>
+
+<div class="option-description">
+    ~10°C
+</div>
+
+</div>
+
+
+<div
+    class="option selected"
+    data-tea="warm"
+>
+
+<span class="option-icon">
+    🌡️
+</span>
+
+<div class="option-title">
+    Warm tea
+</div>
+
+<div class="option-description">
+    ~40°C
+</div>
+
+</div>
+
+
+<div
+    class="option"
+    data-tea="hot"
+>
+
+<span class="option-icon">
+    🔥
+</span>
+
+<div class="option-title">
+    Hot tea
+</div>
+
+<div class="option-description">
+    ~80°C
+</div>
+
+</div>
+
+</div>
+
+
+<div class="control">
+
+<div class="control-header">
+
+<span>
+    How long has it been dunked?
+</span>
+
+<span
+    class="control-value"
+    id="immersionValue"
+>
+    3 seconds
+</span>
+
+</div>
+
+<input
+    type="range"
+    id="immersion"
+    min="0"
+    max="30"
+    value="3"
+/>
+
+</div>
+
+
+<div class="button-row">
+
+<button
+    class="secondary"
+    id="teaBack"
+>
+    ← Back
+</button>
+
+<button
+    class="primary"
+    id="teaNext"
+>
+    Continue →
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     PAGE 3 — CONDITION
+========================================================= -->
+
+<section
+    class="page"
+    id="conditionPage"
+>
+
+<div class="page-content">
+
+<div class="card">
+
+<div class="steps">
+
+<div class="step-dot active"></div>
+<div class="step-dot active"></div>
+<div class="step-dot active"></div>
+<div class="step-dot"></div>
+
+</div>
+
+<div class="card-title">
+    🧱 What's the biscuit's condition?
+</div>
+
+<div class="card-subtitle">
+
+    Be honest. We won't judge your biscuit.
+    Probably.
+
+</div>
+
+
+<div class="condition-grid">
+
+
+<div
+    class="condition-option selected"
+    data-condition="intact"
+>
+
+<span class="condition-icon">
+    🟢
+</span>
+
+<div class="condition-title">
+    Intact
+</div>
+
+</div>
+
+
+<div
+    class="condition-option"
+    data-condition="minor"
+>
+
+<span class="condition-icon">
+    🟡
+</span>
+
+<div class="condition-title">
+    Minor cracks
+</div>
+
+</div>
+
+
+<div
+    class="condition-option"
+    data-condition="damaged"
+>
+
+<span class="condition-icon">
+    🟠
+</span>
+
+<div class="condition-title">
+    Damaged
+</div>
+
+</div>
+
+
+<div
+    class="condition-option"
+    data-condition="severe"
+>
+
+<span class="condition-icon">
+    🔴
+</span>
+
+<div class="condition-title">
+    Severely damaged
+</div>
+
+</div>
+
+</div>
+
+
+<div class="button-row">
+
+<button
+    class="secondary"
+    id="conditionBack"
+>
+    ← Back
+</button>
+
+<button
+    class="primary"
+    id="doomBtn"
+>
+    CALCULATE THE DOOM 🍪
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     PAGE 4 — PROCESSING
+========================================================= -->
+
+<section
+    class="page"
+    id="processingPage"
+>
+
+<div class="processing">
+
+<div class="dunk-scene">
+
+
+<div class="dunk-biscuit">
+</div>
+
+
+<div class="crumb one"></div>
+
+<div class="crumb two"></div>
+
+
+<div class="tea"></div>
+
+<div class="tea-surface"></div>
+
+<div class="cup"></div>
+
+<div class="handle"></div>
+
+</div>
+
+
+<div class="processing-title">
+    Dunking your biscuit...
+</div>
+
+<div
+    class="processing-subtitle"
+    id="processingText"
+>
+    Applying highly questionable physics.
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     PAGE 5 — RESULT
+========================================================= -->
+
+<section
+    class="page"
+    id="resultPage"
+>
+
+<div class="page-content">
+
+<div class="result-page">
+
+<div class="result-card">
+
+<div class="result-cookie">
+    🍪
+</div>
+
+<div class="result-label">
+    Estimated survival time
+</div>
+
+<div
+    class="big-number"
+    id="survivalTime"
+>
+    0.0
+</div>
+
+<div class="seconds">
+    seconds
+</div>
+
+
+<div class="stats">
+
+
+<div class="stat">
+
+<div class="stat-label">
+    Thickness
+</div>
+
+<div
+    class="stat-value"
+    id="resultThickness"
+>
+    --
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+    Density
+</div>
+
+<div
+    class="stat-value"
+    id="resultDensity"
+>
+    --
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+    Tea
+</div>
+
+<div
+    class="stat-value"
+    id="resultTea"
+>
+    --
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+    Condition
+</div>
+
+<div
+    class="stat-value"
+    id="resultCondition"
+>
+    --
+</div>
+
+</div>
+
+</div>
+
+
+<div
+    class="cooked"
+    id="cookedScore"
+>
+🔥 COOKED SCORE: 0 / 10
+</div>
+
+</div>
+
+
+<div class="factor-card">
+
+<div class="card-title"
+     style="font-size:22px;">
+    ⚙️ Why did it fail?
+</div>
+
+
+<div class="factor">
+
+<div class="factor-top">
+
+<span>
+    Thickness
+</span>
+
+<span>
+    Strong influence
+</span>
+
+</div>
+
+<div class="bar">
+
+<div
+    class="bar-fill"
+    id="thicknessBar"
+    style="width:70%"
+></div>
+
+</div>
+
+</div>
+
+
+<div class="factor">
+
+<div class="factor-top">
+
+<span>
+    Density / self-weight
+</span>
+
+<span>
+    Moderate influence
+</span>
+
+</div>
+
+<div class="bar">
+
+<div
+    class="bar-fill"
+    id="densityBar"
+    style="width:55%"
+></div>
+
+</div>
+
+</div>
+
+
+<div class="factor">
+
+<div class="factor-top">
+
+<span>
+    Tea temperature
+</span>
+
+<span>
+    High influence
+</span>
+
+</div>
+
+<div class="bar">
+
+<div
+    class="bar-fill"
+    id="teaBar"
+    style="width:80%"
+></div>
+
+</div>
+
+</div>
+
+
+<div class="factor">
+
+<div class="factor-top">
+
+<span>
+    Moisture exposure
+</span>
+
+<span>
+    High influence
+</span>
+
+</div>
+
+<div class="bar">
+
+<div
+    class="bar-fill"
+    id="moistureBar"
+    style="width:75%"
+></div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="button-row">
+
+<button
+    class="secondary"
+    id="tryAgain"
+>
+    🔄 Try another
+</button>
+
+<button
+    class="primary"
+    id="goWhatIf"
+>
+    🔬 What if?
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     WHAT IF PAGE
+========================================================= -->
+
+<section
+    class="page"
+    id="whatifPage"
+>
+
+<div class="page-content">
+
+<div class="card simple-page">
+
+<div class="card-title">
+    🔬 What if...?
+</div>
+
+<div class="card-subtitle">
+
+    Change the parameters and see how the biscuit
+    responds.
+
+</div>
+
+
+<div class="simulator">
+
+<div>
+
+<div class="control">
+
+<div class="control-header">
+
+<span>
+    Thickness
+</span>
+
+<span
+    class="control-value"
+    id="simThicknessValue"
+>
+    6 mm
+</span>
+
+</div>
+
+<input
+    type="range"
+    id="simThickness"
+    min="2"
+    max="12"
+    step=".1"
+    value="6"
+/>
+
+</div>
+
+
+<div class="control">
+
+<div class="control-header">
+
+<span>
+    Density
+</span>
+
+<span
+    class="control-value"
+    id="simDensityValue"
+>
+    650 kg/m³
+</span>
+
+</div>
+
+<input
+    type="range"
+    id="simDensity"
+    min="400"
+    max="900"
+    value="650"
+/>
+
+</div>
+
+
+<div class="control">
+
+<div class="control-header">
+
+<span>
+    Tea temperature
+</span>
+
+<span
+    class="control-value"
+    id="simTempValue"
+>
+    80°C
+</span>
+
+</div>
+
+<input
+    type="range"
+    id="simTemp"
+    min="5"
+    max="100"
+    value="80"
+/>
+
+</div>
+
+
+<div class="control">
+
+<div class="control-header">
+
+<span>
+    Immersion time
+</span>
+
+<span
+    class="control-value"
+    id="simTimeValue"
+>
+    5 seconds
+</span>
+
+</div>
+
+<input
+    type="range"
+    id="simTime"
+    min="0"
+    max="30"
+    value="5"
+/>
+
+</div>
+
+</div>
+
+
+<div class="sim-result">
+
+<div>
+    Predicted survival
+</div>
+
+<div
+    class="sim-number"
+    id="simResult"
+>
+    0.0
+</div>
+
+<div>
+    seconds
+</div>
+
+<div style="margin-top:15px;">
+    🍪 → ☕ → 💀
+</div>
+
+</div>
+
+</div>
+
+
+<div class="button-row">
+
+<button
+    class="secondary"
+    id="whatIfBack"
+>
+    ← Back
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     COMPARE PAGE
+========================================================= -->
+
+<section
+    class="page"
+    id="comparePage"
+>
+
+<div class="page-content">
+
+<div class="card simple-page">
+
+<div class="card-title">
+    🆚 Biscuit Battle
+</div>
+
+<div class="card-subtitle">
+
+    Two biscuits enter. One biscuit leaves.
+
+</div>
+
+
+<div class="simple-grid">
+
+
+<div>
+
+<h3>
+    🍪 Biscuit A
+</h3>
+
+<input
+    class="compare-upload"
+    type="file"
+    id="compareA"
+    accept="image/*"
+/>
+
+<div
+    class="compare-preview"
+    id="compareAPreview"
+>
+    Upload Biscuit A
+</div>
+
+</div>
+
+
+<div>
+
+<h3>
+    🍪 Biscuit B
+</h3>
+
+<input
+    class="compare-upload"
+    type="file"
+    id="compareB"
+    accept="image/*"
+/>
+
+<div
+    class="compare-preview"
+    id="compareBPreview"
+>
+    Upload Biscuit B
+</div>
+
+</div>
+
+</div>
+
+
+<div class="control">
+
+<div class="control-header">
+
+<span>
+    Tea temperature
+</span>
+
+<span
+    class="control-value"
+    id="compareTempValue"
+>
+    80°C
+</span>
+
+</div>
+
+<input
+    type="range"
+    id="compareTemp"
+    min="5"
+    max="100"
+    value="80"
+/>
+
+</div>
+
+
+<button
+    class="primary"
+    id="compareBtn"
+>
+    START BISCUIT BATTLE 🥊
+</button>
+
+
+<div
+    class="battle-result"
+    id="compareResult"
+>
+    Awaiting contestants...
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     EXPERIMENT PAGE
+========================================================= -->
+
+<section
+    class="page"
+    id="experimentPage"
+>
+
+<div class="page-content">
+
+<div class="card simple-page">
+
+<div class="card-title">
+    🧪 Experiment Lab
+</div>
+
+<div class="card-subtitle">
+
+    Record real-world biscuit failures.
+    Eventually, this data can be used to calibrate
+    the prediction model.
+
+</div>
+
+
+<div class="form-grid">
+
+
+<div class="form-group">
+
+<label>
+    Biscuit
+</label>
+
+<input
+    id="expBiscuit"
+    placeholder="Marie"
+/>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+    Thickness (mm)
+</label>
+
+<input
+    id="expThickness"
+    type="number"
+    step=".1"
+    placeholder="5.8"
+/>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+    Mass (g)
+</label>
+
+<input
+    id="expMass"
+    type="number"
+    step=".1"
+    placeholder="5.2"
+/>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+    Tea temperature (°C)
+</label>
+
+<input
+    id="expTemp"
+    type="number"
+    placeholder="80"
+/>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+    Immersion time (s)
+</label>
+
+<input
+    id="expTime"
+    type="number"
+    placeholder="4"
+/>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+    Actual failure time (s)
+</label>
+
+<input
+    id="expFailure"
+    type="number"
+    step=".1"
+    placeholder="5.2"
+/>
+
+</div>
+
+</div>
+
+
+<button
+    class="primary"
+    id="saveExperiment"
+>
+    SAVE EXPERIMENT 🧪
+</button>
+
+
+<div id="experimentTable"></div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     ABOUT PAGE
+========================================================= -->
+
+<section
+    class="page"
+    id="aboutPage"
+>
+
+<div class="page-content">
+
+<div class="card simple-page">
+
+<div class="card-title">
+    🧠 How BiscuitHub works
+</div>
+
+
+<div class="about-step">
+
+<h3>
+    01 — Biscuit Detection
+</h3>
+
+<p>
+
+    Your uploaded image is passed through a trained
+    image-classification model. It determines whether
+    the image belongs to the Biscuit class or smthgelse.
+
+</p>
+
+</div>
+
+
+<div class="about-step">
+
+<h3>
+    02 — Geometry
+</h3>
+
+<p>
+
+    The intended computer-vision system estimates
+    biscuit shape and geometry from the image.
+
+</p>
+
+</div>
+
+
+<div class="about-step">
+
+<h3>
+    03 — Material Properties
+</h3>
+
+<p>
+
+    Density and structural properties are used to
+    estimate the biscuit's resistance to deformation.
+
+</p>
+
+</div>
+
+
+<div class="about-step">
+
+<h3>
+    04 — Tea Interaction
+</h3>
+
+<p>
+
+    Tea temperature and immersion time influence
+    moisture absorption and material softening.
+
+</p>
+
+</div>
+
+
+<div class="about-step">
+
+<h3>
+    05 — Structural Mechanics
+</h3>
+
+<p>
+
+    The biscuit is approximated as a beam-like structure
+    subjected to gravitational loading.
+
+</p>
+
+</div>
+
+
+<div class="about-step">
+
+<h3>
+    06 — Failure
+</h3>
+
+<p>
+
+    The model combines these effects to produce the
+    final estimated biscuit survival time.
+
+</p>
+
+</div>
+
+
+<div
+    class="info"
+    style="
+        margin-top:25px;
+        background:#eee2d2;
+        padding:18px;
+        border-radius:18px;
+        line-height:1.6;
+    "
+>
+
+<strong>
+    Engineering note:
+</strong>
+
+<br><br>
+
+The current biscuit detector is a trained image
+classification model. Thickness and density are
+still prototype estimates. A future version can
+replace these with a dedicated computer-vision
+regression model trained using real biscuit data.
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   BISCUIT AI
+========================================================= */
+
+const MODEL_URL =
+    "https://teachablemachine.withgoogle.com/models/slB7cYmYh/";
+
+let biscuitModel = null;
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let uploadedImage = null;
+
+let selectedTea = "warm";
+
+let selectedCondition = "intact";
+
+let experiments = [];
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const pages = {
+
+    home:
+        document.getElementById("homePage"),
+
+    upload:
+        document.getElementById("uploadPage"),
+
+    tea:
+        document.getElementById("teaPage"),
+
+    condition:
+        document.getElementById("conditionPage"),
+
+    processing:
+        document.getElementById("processingPage"),
+
+    result:
+        document.getElementById("resultPage"),
+
+    whatif:
+        document.getElementById("whatifPage"),
+
+    compare:
+        document.getElementById("comparePage"),
+
+    experiment:
+        document.getElementById("experimentPage"),
+
+    about:
+        document.getElementById("aboutPage")
+
+};
+
+
+/* =========================================================
+   PAGE SWITCH
+========================================================= */
+
+function showPage(page) {
+
+    Object.values(pages).forEach(
+        p =>
+        p.classList.remove("active")
+    );
+
+    pages[page].classList.add("active");
+
+}
+
+
+/* =========================================================
+   LOAD AI
+========================================================= */
+
+async function loadBiscuitModel() {
+
+    const status =
+        document.getElementById(
+            "modelStatus"
+        );
+
+    try {
+
+        status.textContent =
+            "Loading...";
+
+        biscuitModel =
+            await tmImage.load(
+                MODEL_URL + "model.json",
+                MODEL_URL + "metadata.json"
+            );
+
+        status.textContent =
+            "Ready 🍪";
+
+        console.log(
+            "Biscuit AI loaded."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+            "Failed to load";
+
+    }
+
+}
+
+loadBiscuitModel();
+
+
+/* =========================================================
+   START
+========================================================= */
+
+document
+    .getElementById("startBtn")
+    .addEventListener(
+        "click",
+        () => {
+
+            showPage("upload");
+
+        }
+    );
+
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+const upload =
+    document.getElementById("upload");
+
+const fileInput =
+    document.getElementById("fileInput");
+
+const preview =
+    document.getElementById("preview");
+
+const previewImage =
+    document.getElementById("previewImage");
+
+const uploadNext =
+    document.getElementById("uploadNext");
+
+
+upload.addEventListener(
+    "click",
+    () =>
+    fileInput.click()
+);
+
+
+fileInput.addEventListener(
+    "change",
+    event => {
+
+        const file =
+            event.target.files[0];
+
+        if (file) {
+
+            handleImage(file);
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   HANDLE IMAGE
+========================================================= */
+
+function handleImage(file) {
+
+    if (
+        !file.type.startsWith("image/")
+    ) {
+
+        alert(
+            "Please upload an image 🍪"
+        );
+
+        return;
+
+    }
+
+
+    uploadedImage = file;
+
+
+    uploadNext.disabled =
+        true;
+
+
+    const url =
+        URL.createObjectURL(file);
+
+
+    previewImage.onload =
+        async () => {
+
+            preview.style.display =
+                "block";
+
+            await checkIfBiscuit();
+
+            URL.revokeObjectURL(url);
+
+        };
+
+
+    previewImage.src =
+        url;
+
+}
+
+
+/* =========================================================
+   BISCUIT CHECK
+========================================================= */
+
+async function checkIfBiscuit() {
+
+    const box =
+        document.getElementById(
+            "biscuitCheck"
+        );
+
+    const icon =
+        document.getElementById(
+            "biscuitCheckIcon"
+        );
+
+    const title =
+        document.getElementById(
+            "biscuitCheckTitle"
+        );
+
+    const text =
+        document.getElementById(
+            "biscuitCheckText"
+        );
+
+
+    box.className =
+        "biscuit-check visible checking";
+
+
+    icon.textContent =
+        "🤖";
+
+
+    title.textContent =
+        "Inspecting image...";
+
+
+    text.textContent =
+        "The biscuit authorities are investigating.";
+
+
+    uploadNext.disabled =
+        true;
+
+
+    if (!biscuitModel) {
+
+        title.textContent =
+            "Loading biscuit AI...";
+
+        await loadBiscuitModel();
+
+    }
+
+
+    if (!biscuitModel) {
+
+        box.className =
+            "biscuit-check visible failure";
+
+        icon.textContent =
+            "⚠️";
+
+        title.textContent =
+            "AI unavailable";
+
+        text.textContent =
+            "The biscuit detector could not be loaded.";
+
+        return false;
+
+    }
+
+
+    try {
+
+        const predictions =
+            await biscuitModel.predict(
+                previewImage
+            );
+
+
+        console.log(
+            "Predictions:",
+            predictions
+        );
+
+
+        let biscuitConfidence = 0;
+
+        let otherConfidence = 0;
+
+
+        predictions.forEach(
+            prediction => {
+
+                const label =
+                    prediction.className
+                        .trim()
+                        .toLowerCase();
+
+
+                if (
+                    label === "biscuit"
+                ) {
+
+                    biscuitConfidence =
+                        prediction.probability;
+
+                }
+
+                else if (
+                    label === "smthgelse"
+                ) {
+
+                    otherConfidence =
+                        prediction.probability;
+
+                }
+
+            }
+        );
+
+
+        const biscuitPercent =
+            biscuitConfidence * 100;
+
+        const otherPercent =
+            otherConfidence * 100;
+
+
+        const isBiscuit =
+            biscuitConfidence >= 0.70 &&
+            biscuitConfidence >
+            otherConfidence;
+
+
+        if (isBiscuit) {
+
+            box.className =
+                "biscuit-check visible success";
+
+
+            icon.textContent =
+                "🍪";
+
+
+            title.textContent =
+                "BISCUIT CONFIRMED.";
+
+
+            text.innerHTML =
+
+                `Confidence:
+                <strong>
+                    ${biscuitPercent.toFixed(1)}%
+                </strong>
+                <br>
+                Your biscuit has been cleared for testing.`;
+
+
+            uploadNext.disabled =
+                false;
+
+
+            return true;
+
+        }
+
+
+        const roasts = [
+
+            "Bro uploaded a potato. 🥔",
+
+            "That's not a biscuit. Respectfully. 💀",
+
+            "BISCUIT FRAUD DETECTED. 🚨",
+
+            "Nice object. Wrong species. 😭",
+
+            "Were the biscuits in the room with us?",
+
+            "The biscuit police have been notified. 🚓",
+
+            "I asked for a biscuit. You gave me... that.",
+
+            "10/10 object. 0/10 biscuit.",
+
+            "Congratulations. You have discovered smthgelse.",
+
+            "Our engineers refuse to analyse this object."
+
+        ];
+
+
+        const roast =
+            roasts[
+                Math.floor(
+                    Math.random() *
+                    roasts.length
+                )
+            ];
+
+
+        box.className =
+            "biscuit-check visible failure";
+
+
+        icon.textContent =
+            "💀";
+
+
+        title.textContent =
+            "NOT A BISCUIT.";
+
+
+        text.innerHTML =
+
+            `<span class="roast">
+                ${roast}
+            </span>
+            <br><br>
+            Biscuit:
+            ${biscuitPercent.toFixed(1)}%
+            <br>
+            smthgelse:
+            ${otherPercent.toFixed(1)}%`;
+
+
+        uploadNext.disabled =
+            true;
+
+
+        return false;
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        box.className =
+            "biscuit-check visible failure";
+
+        icon.textContent =
+            "⚠️";
+
+        title.textContent =
+            "Detection error";
+
+        text.textContent =
+            "The biscuit detector fell over.";
+
+        uploadNext.disabled =
+            true;
+
+        return false;
+
+    }
+
+}
+
+
+/* =========================================================
+   DRAG DROP
+========================================================= */
+
+upload.addEventListener(
+    "dragover",
+    event => {
+
+        event.preventDefault();
+
+        upload.classList.add(
+            "drag"
+        );
+
+    }
+);
+
+
+upload.addEventListener(
+    "dragleave",
+    () => {
+
+        upload.classList.remove(
+            "drag"
+        );
+
+    }
+);
+
+
+upload.addEventListener(
+    "drop",
+    event => {
+
+        event.preventDefault();
+
+        upload.classList.remove(
+            "drag"
+        );
+
+
+        const file =
+            event.dataTransfer.files[0];
+
+
+        if (file) {
+
+            handleImage(file);
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   NAVIGATION FROM UPLOAD
+========================================================= */
+
+document
+    .getElementById("uploadNext")
+    .addEventListener(
+        "click",
+        () => {
+
+            showPage("tea");
+
+        }
+    );
+
+
+document
+    .getElementById("homeFromUpload")
+    .addEventListener(
+        "click",
+        () => {
+
+            showPage("home");
+
+        }
+    );
+
+
+/* =========================================================
+   TEA
+========================================================= */
+
+const teaOptions =
+    document.querySelectorAll(
+        "[data-tea]"
+    );
+
+
+teaOptions.forEach(
+    option => {
+
+        option.addEventListener(
+            "click",
+            () => {
+
+                teaOptions.forEach(
+                    o =>
+                    o.classList.remove(
+                        "selected"
+                    )
+                );
+
+
+                option.classList.add(
+                    "selected"
+                );
+
+
+                selectedTea =
+                    option.dataset.tea;
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================================
+   IMMERSION
+========================================================= */
+
+const immersion =
+    document.getElementById(
+        "immersion"
+    );
+
+const immersionValue =
+    document.getElementById(
+        "immersionValue"
+    );
+
+
+immersion.addEventListener(
+    "input",
+    () => {
+
+        immersionValue.textContent =
+            immersion.value +
+            " seconds";
+
+    }
+);
+
+
+document
+    .getElementById("teaBack")
+    .addEventListener(
+        "click",
+        () => {
+
+            showPage("upload");
+
+        }
+    );
+
+
+document
+    .getElementById("teaNext")
+    .addEventListener(
+        "click",
+        () => {
+
+            showPage("condition");
+
+        }
+    );
+
+
+/* =========================================================
+   CONDITION
+========================================================= */
+
+const conditionOptions =
+    document.querySelectorAll(
+        "[data-condition]"
+    );
+
+
+conditionOptions.forEach(
+    option => {
+
+        option.addEventListener(
+            "click",
+            () => {
+
+                conditionOptions.forEach(
+                    o =>
+                    o.classList.remove(
+                        "selected"
+                    )
+                );
+
+
+                option.classList.add(
+                    "selected"
+                );
+
+
+                selectedCondition =
+                    option.dataset.condition;
+
+            }
+        );
+
+    }
+);
+
+
+document
+    .getElementById("conditionBack")
+    .addEventListener(
+        "click",
+        () => {
+
+            showPage("tea");
+
+        }
+    );
+
+
+document
+    .getElementById("doomBtn")
+    .addEventListener(
+        "click",
+        runAnalysis
+    );
+
+
+/* =========================================================
+   TEMPERATURE
+========================================================= */
+
+function teaTemperature() {
+
+    if (
+        selectedTea === "cold"
+    ) {
+
+        return 10;
+
+    }
+
+    if (
+        selectedTea === "warm"
+    ) {
+
+        return 40;
+
+    }
+
+    return 80;
+
+}
+
+
+/* =========================================================
+   VISION PROTOTYPE
+========================================================= */
+
+function analyzeBiscuit() {
+
+    /*
+        Temporary prototype.
+
+        Replace this with a trained regression/
+        computer-vision model later.
+    */
+
+    const thickness =
+        4.5 +
+        Math.random() *
+        3;
+
+
+    const density =
+        600 +
+        Math.random() *
+        120;
+
+
+    return {
+
+        thickness,
+
+        density
+
+    };
+
+}
+
+
+/* =========================================================
+   PHYSICS MODEL
+========================================================= */
+
+function physicsModel(
+    thickness,
+    density,
+    temperature,
+    immersionTime,
+    condition
+) {
+
+
+    let temperatureFactor;
+
+
+    if (
+        temperature <= 15
+    ) {
+
+        temperatureFactor =
+            1;
+
+    }
+
+    else if (
+        temperature <= 50
+    ) {
+
+        temperatureFactor =
+            .82;
+
+    }
+
+    else {
+
+        temperatureFactor =
+            .62;
+
+    }
+
+
+    const moistureFactor =
+        Math.exp(
+            -.045 *
+            immersionTime
+        );
+
+
+    const conditionFactors = {
+
+        intact: 1,
+
+        minor: .82,
+
+        damaged: .60,
+
+        severe: .35
+
+    };
+
+
+    const structuralFactor =
+        conditionFactors[
+            condition
+        ] || 1;
+
+
+    const thicknessEffect =
+        Math.pow(
+            thickness / 6,
+            2.7
+        );
+
+
+    const densityEffect =
+        Math.sqrt(
+            650 / density
+        );
+
+
+    let survival =
+
+        6 *
+
+        thicknessEffect *
+
+        densityEffect *
+
+        temperatureFactor *
+
+        moistureFactor *
+
+        structuralFactor;
+
+
+    survival =
+        Math.max(
+            .3,
+            Math.min(
+                survival,
+                60
+            )
+        );
+
+
+    return survival;
+
+}
+
+
+/* =========================================================
+   COOKED SCORE
+========================================================= */
+
+function cookedScore(
+    survival
+) {
+
+    let score =
+        10 -
+        survival / 1.5;
+
+
+    return Math.max(
+        0,
+        Math.min(
+            10,
+            score
+        )
+    );
+
+}
+
+
+/* =========================================================
+   RUN ANALYSIS
+========================================================= */
+
+function runAnalysis() {
+
+    if (!uploadedImage) {
+
+        alert(
+            "Upload a biscuit first 🍪"
+        );
+
+        return;
+
+    }
+
+
+    showPage("processing");
+
+
+    const processingText =
+        document.getElementById(
+            "processingText"
+        );
+
+
+    const messages = [
+
+        "Applying highly questionable physics.",
+
+        "Calculating moisture absorption.",
+
+        "Estimating structural integrity.",
+
+        "Calculating bending resistance.",
+
+        "Checking biscuit survival.",
+
+        "Preparing the inevitable."
+
+    ];
+
+
+    let index = 0;
+
+
+    processingText.textContent =
+        messages[0];
+
+
+    const interval =
+        setInterval(
+            () => {
+
+                index++;
+
+
+                if (
+                    index >=
+                    messages.length
+                ) {
+
+                    clearInterval(
+                        interval
+                    );
+
+
+                    finishAnalysis();
+
+                    return;
+
+                }
+
+
+                processingText.textContent =
+                    messages[index];
+
+            },
+            600
+        );
+
+}
+
+
+/* =========================================================
+   FINISH ANALYSIS
+========================================================= */
+
+function finishAnalysis() {
+
+    const properties =
+        analyzeBiscuit();
+
+
+    const temperature =
+        teaTemperature();
+
+
+    const immersionTime =
+        Number(
+            immersion.value
+        );
+
+
+    const survival =
+        physicsModel(
+
+            properties.thickness,
+
+            properties.density,
+
+            temperature,
+
+            immersionTime,
+
+            selectedCondition
+
+        );
+
+
+    const score =
+        cookedScore(
+            survival
+        );
+
+
+    document.getElementById(
+        "survivalTime"
+    ).textContent =
+        survival.toFixed(1);
+
+
+    document.getElementById(
+        "resultThickness"
+    ).textContent =
+        properties.thickness.toFixed(1) +
+        " mm";
+
+
+    document.getElementById(
+        "resultDensity"
+    ).textContent =
+        Math.round(
+            properties.density
+        ) +
+        " kg/m³";
+
+
+    document.getElementById(
+        "resultTea"
+    ).textContent =
+        temperature +
+        "°C";
+
+
+    document.getElementById(
+        "resultCondition"
+    ).textContent =
+        selectedCondition;
+
+
+    document.getElementById(
+        "cookedScore"
+    ).textContent =
+        "🔥 COOKED SCORE: " +
+        score.toFixed(1) +
+        " / 10";
+
+
+    document.getElementById(
+        "thicknessBar"
+    ).style.width =
+        Math.min(
+            100,
+            properties.thickness * 9
+        ) +
+        "%";
+
+
+    document.getElementById(
+        "densityBar"
+    ).style.width =
+        Math.min(
+            100,
+            properties.density / 9
+        ) +
+        "%";
+
+
+    document.getElementById(
+        "teaBar"
+    ).style.width =
+        temperature +
+        "%";
+
+
+    document.getElementById(
+        "moistureBar"
+    ).style.width =
+        Math.min(
+            100,
+            immersionTime * 3.3
+        ) +
+        "%";
+
+
+    setTimeout(
+        () => {
+
+            showPage("result");
+
+        },
+        250
+    );
+
+}
+
+
+/* =========================================================
+   TRY AGAIN
+========================================================= */
+
+document
+    .getElementById("tryAgain")
+    .addEventListener(
+        "click",
+        () => {
+
+            uploadedImage =
+                null;
+
+            fileInput.value =
+                "";
+
+            preview.style.display =
+                "none";
+
+            document.getElementById(
+                "biscuitCheck"
+            ).className =
+                "biscuit-check";
+
+            uploadNext.disabled =
+                true;
+
+            showPage("upload");
+
+        }
+    );
+
+
+/* =========================================================
+   WHAT IF
+========================================================= */
+
+const simThickness =
+    document.getElementById(
+        "simThickness"
+    );
+
+const simDensity =
+    document.getElementById(
+        "simDensity"
+    );
+
+const simTemp =
+    document.getElementById(
+        "simTemp"
+    );
+
+const simTime =
+    document.getElementById(
+        "simTime"
+    );
+
+
+[
+    simThickness,
+    simDensity,
+    simTemp,
+    simTime
+
+].forEach(
+    slider => {
+
+        slider.addEventListener(
+            "input",
+            updateSimulator
+        );
+
+    }
+);
+
+
+function updateSimulator() {
+
+    const thickness =
+        Number(
+            simThickness.value
+        );
+
+
+    const density =
+        Number(
+            simDensity.value
+        );
+
+
+    const temperature =
+        Number(
+            simTemp.value
+        );
+
+
+    const time =
+        Number(
+            simTime.value
+        );
+
+
+    document.getElementById(
+        "simThicknessValue"
+    ).textContent =
+        thickness.toFixed(1) +
+        " mm";
+
+
+    document.getElementById(
+        "simDensityValue"
+    ).textContent =
+        density +
+        " kg/m³";
+
+
+    document.getElementById(
+        "simTempValue"
+    ).textContent =
+        temperature +
+        "°C";
+
+
+    document.getElementById(
+        "simTimeValue"
+    ).textContent =
+        time +
+        " seconds";
+
+
+    const survival =
+        physicsModel(
+
+            thickness,
+
+            density,
+
+            temperature,
+
+            time,
+
+            "intact"
+
+        );
+
+
+    document.getElementById(
+        "simResult"
+    ).textContent =
+        survival.toFixed(1);
+
+}
+
+
+updateSimulator();
+
+
+document
+    .getElementById("goWhatIf")
+    .addEventListener(
+        "click",
+        () => {
+
+            showPage("whatif");
+
+        }
+    );
+
+
+document
+    .getElementById("whatIfBack")
+    .addEventListener(
+        "click",
+        () => {
+
+            showPage("result");
+
+        }
+    );
+
+
+/* =========================================================
+   BISCUIT BATTLE
+========================================================= */
+
+let biscuitA = null;
+
+let biscuitB = null;
+
+
+const compareA =
+    document.getElementById(
+        "compareA"
+    );
+
+const compareB =
+    document.getElementById(
+        "compareB"
+    );
+
+
+compareA.addEventListener(
+    "change",
+    event => {
+
+        biscuitA =
+            event.target.files[0];
+
+        showComparePreview(
+            biscuitA,
+            "compareAPreview",
+            "Biscuit A"
+        );
+
+    }
+);
+
+
+compareB.addEventListener(
+    "change",
+    event => {
+
+        biscuitB =
+            event.target.files[0];
+
+        showComparePreview(
+            biscuitB,
+            "compareBPreview",
+            "Biscuit B"
+        );
+
+    }
+);
+
+
+function showComparePreview(
+    file,
+    elementId,
+    label
+) {
+
+    const container =
+        document.getElementById(
+            elementId
+        );
+
+
+    if (!file) {
+
+        container.textContent =
+            "Upload " + label;
+
+        return;
+
+    }
+
+
+    const img =
+        document.createElement(
+            "img"
+        );
+
+
+    img.src =
+        URL.createObjectURL(file);
+
+
+    container.innerHTML =
+        "";
+
+
+    container.appendChild(
+        img
+    );
+
+}
+
+
+const compareTemp =
+    document.getElementById(
+        "compareTemp"
+    );
+
+
+compareTemp.addEventListener(
+    "input",
+    () => {
+
+        document.getElementById(
+            "compareTempValue"
+        ).textContent =
+            compareTemp.value +
+            "°C";
+
+    }
+);
+
+
+document
+    .getElementById("compareBtn")
+    .addEventListener(
+        "click",
+        () => {
+
+            if (
+                !biscuitA ||
+                !biscuitB
+            ) {
+
+                alert(
+                    "Upload both biscuits first 🍪"
+                );
+
+                return;
+
+            }
+
+
+            const a =
+                fakeComparisonAnalysis();
+
+
+            const b =
+                fakeComparisonAnalysis();
+
+
+            const temperature =
+                Number(
+                    compareTemp.value
+                );
+
+
+            const survivalA =
+                physicsModel(
+
+                    a.thickness,
+
+                    a.density,
+
+                    temperature,
+
+                    3,
+
+                    "intact"
+
+                );
+
+
+            const survivalB =
+                physicsModel(
+
+                    b.thickness,
+
+                    b.density,
+
+                    temperature,
+
+                    3,
+
+                    "intact"
+
+                );
+
+
+            let result;
+
+
+            if (
+                survivalA >
+                survivalB
+            ) {
+
+                result =
+                    `🏆 BISCUIT A WINS<br><br>
+                    ${survivalA.toFixed(1)} s
+                    vs
+                    ${survivalB.toFixed(1)} s`;
+
+            }
+
+            else if (
+                survivalB >
+                survivalA
+            ) {
+
+                result =
+                    `🏆 BISCUIT B WINS<br><br>
+                    ${survivalB.toFixed(1)} s
+                    vs
+                    ${survivalA.toFixed(1)} s`;
+
+            }
+
+            else {
+
+                result =
+                    "🤝 IT'S A DRAW";
+
+            }
+
+
+            document.getElementById(
+                "compareResult"
+            ).innerHTML =
+                result;
+
+        }
+    );
+
+
+function fakeComparisonAnalysis() {
+
+    return {
+
+        thickness:
+            4.5 +
+            Math.random() *
+            3,
+
+        density:
+            600 +
+            Math.random() *
+            120
+
+    };
+
+}
+
+
+/* =========================================================
+   EXPERIMENT LAB
+========================================================= */
+
+document
+    .getElementById("saveExperiment")
+    .addEventListener(
+        "click",
+        saveExperiment
+    );
+
+
+function saveExperiment() {
+
+    const biscuit =
+        document.getElementById(
+            "expBiscuit"
+        ).value;
+
+    const thickness =
+        document.getElementById(
+            "expThickness"
+        ).value;
+
+    const mass =
+        document.getElementById(
+            "expMass"
+        ).value;
+
+    const temp =
+        document.getElementById(
+            "expTemp"
+        ).value;
+
+    const time =
+        document.getElementById(
+            "expTime"
+        ).value;
+
+    const failure =
+        document.getElementById(
+            "expFailure"
+        ).value;
+
+
+    if (
+        !biscuit ||
+        !thickness ||
+        !mass ||
+        !temp ||
+        !time ||
+        !failure
+    ) {
+
+        alert(
+            "Fill in all fields 🧪"
+        );
+
+        return;
+
+    }
+
+
+    experiments.push({
+
+        biscuit,
+
+        thickness,
+
+        mass,
+
+        temp,
+
+        time,
+
+        failure
+
+    });
+
+
+    renderExperiments();
+
+}
+
+
+function renderExperiments() {
+
+    let html = `
+
+        <table class="experiment-table">
+
+        <thead>
+
+        <tr>
+
+        <th>Biscuit</th>
+
+        <th>Thickness</th>
+
+        <th>Mass</th>
+
+        <th>Tea</th>
+
+        <th>Immersion</th>
+
+        <th>Failure</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+    `;
+
+
+    experiments.forEach(
+        experiment => {
+
+            html += `
+
+                <tr>
+
+                    <td>
+                        ${experiment.biscuit}
+                    </td>
+
+                    <td>
+                        ${experiment.thickness} mm
+                    </td>
+
+                    <td>
+                        ${experiment.mass} g
+                    </td>
+
+                    <td>
+                        ${experiment.temp}°C
+                    </td>
+
+                    <td>
+                        ${experiment.time} s
+                    </td>
+
+                    <td>
+                        ${experiment.failure} s
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+        </tbody>
+
+        </table>
+
+    `;
+
+
+    document.getElementById(
+        "experimentTable"
+    ).innerHTML =
+        html;
+
+}
+
+</script>
+
+</body>
+
+</html>
