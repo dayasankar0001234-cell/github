@@ -52,20 +52,6 @@ second window
 <img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/64539de8-a608-4d36-ae4c-0af429ca1a03" /> 
 loading screen
 
-# Diagrams
-User
-  ↓
-Upload Biscuit Image
-  ↓
-Image Analysis
-  ↓
-Biscuit Characteristics Detection
-  ↓
-Tea Resistance Calculation
-  ↓
-Survival Time + Dip Limit Prediction
-  ↓
-Funny Result & Tea Survival Rating
 
 
 ### Project Demo
