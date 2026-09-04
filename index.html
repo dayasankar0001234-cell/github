@@ -1,13 +1,3302 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My First Website</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BiscuitHub 🍪</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+<style>
+:root{
+    --orange:#e58d35;
+    --dark:#17130f;
+    --cream:#fff8ee;
+    --brown:#5b3924;
+    --light:#f7ead8;
+    --green:#62b58b;
+    --red:#df625d;
+    --shadow:0 12px 35px rgba(70,40,15,.12);
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:var(--cream);
+    color:var(--dark);
+    overflow-x:hidden;
+}
+
+button,
+input{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar{
+    height:76px;
+    background:white;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 6%;
+    position:sticky;
+    top:0;
+    z-index:1000;
+    box-shadow:0 3px 20px rgba(0,0,0,.06);
+}
+
+.logo{
+    font-size:28px;
+    font-weight:900;
+    display:flex;
+    align-items:center;
+}
+
+.logo-biscuit{
+    background:#17130f;
+    color:white;
+    padding:7px 11px;
+}
+
+.logo-hub{
+    background:var(--orange);
+    color:#111;
+    padding:7px 11px;
+}
+
+.nav-links{
+    display:flex;
+    gap:8px;
+}
+
+.nav-links button{
+    background:none;
+    border:none;
+    padding:10px 14px;
+    border-radius:10px;
+    font-weight:700;
+    color:#5b5148;
+    transition:.2s;
+}
+
+.nav-links button:hover{
+    background:#f4eadc;
+    color:#17130f;
+}
+
+/* =========================
+   PAGE SYSTEM
+========================= */
+
+.page{
+    display:none;
+    min-height:calc(100vh - 76px);
+    padding:55px 7%;
+    animation:pageIn .35s ease;
+}
+
+.page.active{
+    display:block;
+}
+
+@keyframes pageIn{
+    from{
+        opacity:0;
+        transform:translateY(12px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+}
+
+.center{
+    text-align:center;
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero{
+    min-height:calc(100vh - 76px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+}
+
+.hero-content{
+    max-width:800px;
+    position:relative;
+    z-index:2;
+}
+
+.hero h1{
+    font-size:clamp(55px,9vw,105px);
+    line-height:.9;
+    font-weight:950;
+    letter-spacing:-5px;
+    margin-bottom:28px;
+}
+
+.hero h1 span{
+    display:inline-block;
+    background:var(--orange);
+    padding:4px 15px;
+}
+
+.hero p{
+    font-size:20px;
+    color:#6e5b49;
+    line-height:1.6;
+    margin-bottom:35px;
+}
+
+.hero-buttons{
+    display:flex;
+    gap:15px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.hero-cookie{
+    position:absolute;
+    font-size:100px;
+    animation:floatCookie 4s ease-in-out infinite;
+}
+
+.cookie1{
+    left:8%;
+    top:20%;
+}
+
+.cookie2{
+    right:10%;
+    bottom:20%;
+    animation-delay:1.5s;
+}
+
+@keyframes floatCookie{
+    0%,100%{
+        transform:translateY(0) rotate(-8deg);
+    }
+    50%{
+        transform:translateY(-25px) rotate(8deg);
+    }
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.primary-btn,
+.secondary-btn,
+.danger-btn{
+    border:none;
+    border-radius:13px;
+    padding:14px 24px;
+    font-weight:800;
+    transition:.2s;
+}
+
+.primary-btn{
+    background:var(--dark);
+    color:white;
+}
+
+.primary-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+
+.secondary-btn{
+    background:#f0dfca;
+    color:var(--dark);
+}
+
+.secondary-btn:hover{
+    background:#e7d0b3;
+}
+
+.danger-btn{
+    background:var(--red);
+    color:white;
+}
+
+button:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+}
+
+/* =========================
+   HEADINGS
+========================= */
+
+.section-title{
+    text-align:center;
+    font-size:48px;
+    font-weight:950;
+    margin-bottom:12px;
+}
+
+.section-subtitle{
+    text-align:center;
+    color:#806e5d;
+    margin-bottom:40px;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.card{
+    background:white;
+    border-radius:22px;
+    padding:30px;
+    box-shadow:var(--shadow);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:22px;
+}
+
+.feature-card{
+    padding:28px;
+    background:white;
+    border-radius:22px;
+    box-shadow:var(--shadow);
+    transition:.25s;
+}
+
+.feature-card:hover{
+    transform:translateY(-5px);
+}
+
+.feature-icon{
+    font-size:42px;
+    margin-bottom:15px;
+}
+
+.feature-card h3{
+    margin-bottom:8px;
+    font-size:21px;
+}
+
+.feature-card p{
+    color:#766555;
+    line-height:1.5;
+}
+
+/* =========================
+   WIZARD
+========================= */
+
+.wizard{
+    max-width:800px;
+    margin:auto;
+}
+
+.step-indicator{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-bottom:38px;
+}
+
+.step-dot{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:#e6d8c8;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:900;
+    color:#826c58;
+}
+
+.step-dot.active{
+    background:var(--orange);
+    color:#111;
+}
+
+.step-line{
+    width:55px;
+    height:4px;
+    background:#e6d8c8;
+}
+
+.step{
+    display:none;
+    animation:stepIn .35s ease;
+}
+
+.step.active{
+    display:block;
+}
+
+@keyframes stepIn{
+    from{
+        opacity:0;
+        transform:translateX(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+.step h2{
+    font-size:34px;
+    margin-bottom:10px;
+}
+
+.step-description{
+    color:#796856;
+    margin-bottom:28px;
+}
+
+/* =========================
+   UPLOAD
+========================= */
+
+.upload-box{
+    border:3px dashed #d8c4ad;
+    border-radius:20px;
+    padding:55px 25px;
+    text-align:center;
+    background:#fffaf3;
+    transition:.2s;
+}
+
+.upload-box:hover{
+    border-color:var(--orange);
+}
+
+.upload-icon{
+    font-size:65px;
+    margin-bottom:15px;
+}
+
+.upload-box input{
+    display:none;
+}
+
+.upload-label{
+    display:inline-block;
+    background:var(--dark);
+    color:white;
+    padding:13px 22px;
+    border-radius:12px;
+    font-weight:800;
+    cursor:pointer;
+    margin-top:15px;
+}
+
+.preview-container{
+    margin-top:22px;
+    text-align:center;
+}
+
+.preview-container img{
+    max-width:280px;
+    max-height:250px;
+    border-radius:18px;
+    object-fit:contain;
+    box-shadow:var(--shadow);
+}
+
+/* =========================
+   AI STATUS
+========================= */
+
+.ai-status{
+    margin-top:20px;
+    padding:15px;
+    border-radius:12px;
+    display:none;
+    font-weight:700;
+}
+
+.ai-status.checking{
+    display:block;
+    background:#fff1d8;
+    color:#80591c;
+}
+
+.ai-status.success{
+    display:block;
+    background:#def4e8;
+    color:#286946;
+}
+
+.ai-status.error{
+    display:block;
+    background:#fde3e1;
+    color:#9b3733;
+}
+
+/* =========================
+   OPTIONS
+========================= */
+
+.options{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-top:25px;
+}
+
+.option{
+    border:2px solid #e5d7c6;
+    border-radius:16px;
+    padding:22px;
+    text-align:center;
+    background:white;
+    transition:.2s;
+    cursor:pointer;
+}
+
+.option:hover{
+    border-color:var(--orange);
+    transform:translateY(-2px);
+}
+
+.option.selected{
+    border-color:var(--orange);
+    background:#fff1df;
+}
+
+.option .emoji{
+    font-size:38px;
+    display:block;
+    margin-bottom:10px;
+}
+
+.option strong{
+    display:block;
+    margin-bottom:4px;
+}
+
+.option small{
+    color:#816e5c;
+}
+
+.time-options{
+    grid-template-columns:repeat(4,1fr);
+}
+
+/* =========================
+   STEP CONTROLS
+========================= */
+
+.step-controls{
+    display:flex;
+    justify-content:space-between;
+    margin-top:30px;
+}
+
+.next-right{
+    margin-left:auto;
+}
+
+/* =========================
+   ROAST
+========================= */
+
+.roast{
+    margin-top:20px;
+    padding:18px;
+    border-radius:15px;
+    background:#fff0ef;
+    color:#9c3733;
+    font-weight:800;
+    display:none;
+}
+
+.roast.show{
+    display:block;
+}
+
+/* =========================
+   PROCESSING
+========================= */
+
+.processing-screen{
+    text-align:center;
+    padding:20px 0 40px;
+}
+
+.processing-screen h2{
+    margin-top:25px;
+    font-size:32px;
+}
+
+.processing-screen p{
+    color:#786756;
+    margin-top:8px;
+}
+
+.animation-stage{
+    height:330px;
+    width:100%;
+    max-width:520px;
+    margin:10px auto;
+    position:relative;
+    overflow:hidden;
+}
+
+/* CUP */
+
+.cup{
+    position:absolute;
+    width:190px;
+    height:105px;
+    border:7px solid #3d2b20;
+    border-top:none;
+    border-radius:0 0 35px 35px;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:55px;
+    background:#fff;
+    z-index:2;
+}
+
+.cup::after{
+    content:"";
+    position:absolute;
+    width:55px;
+    height:55px;
+    border:7px solid #3d2b20;
+    border-left:none;
+    border-radius:0 50% 50% 0;
+    right:-62px;
+    top:15px;
+}
+
+.tea{
+    position:absolute;
+    width:176px;
+    height:60px;
+    left:7px;
+    top:4px;
+    border-radius:50%;
+    background:#a96b34;
+    overflow:hidden;
+}
+
+.tea::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 10px,
+        rgba(255,255,255,.12) 11px,
+        transparent 14px
+    );
+    animation:teaWave 1s linear infinite;
+}
+
+@keyframes teaWave{
+    from{
+        transform:translateY(0);
+    }
+    to{
+        transform:translateY(12px);
+    }
+}
+
+/* BISCUIT */
+
+.dunk-biscuit{
+    position:absolute;
+    width:95px;
+    height:58px;
+    background:#d28b43;
+    border:6px solid #6d3f20;
+    border-radius:50%;
+    left:50%;
+    top:20px;
+    transform:translateX(-50%) rotate(-10deg);
+    z-index:5;
+    box-shadow:inset 10px 8px 0 rgba(255,255,255,.14);
+    animation:biscuitDunk 4.8s ease-in-out forwards;
+}
+
+.dunk-biscuit::before,
+.dunk-biscuit::after{
+    content:"";
+    position:absolute;
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#6d3f20;
+}
+
+.dunk-biscuit::before{
+    left:23px;
+    top:17px;
+}
+
+.dunk-biscuit::after{
+    right:22px;
+    bottom:13px;
+}
+
+.biscuit-piece-left,
+.biscuit-piece-right{
+    position:absolute;
+    width:48px;
+    height:58px;
+    background:#d28b43;
+    border:6px solid #6d3f20;
+    top:122px;
+    z-index:7;
+    opacity:0;
+}
+
+.biscuit-piece-left{
+    left:calc(50% - 48px);
+    border-radius:45px 8px 8px 45px;
+}
+
+.biscuit-piece-right{
+    left:50%;
+    border-radius:8px 45px 45px 8px;
+}
+
+@keyframes biscuitDunk{
+
+    0%{
+        top:20px;
+        transform:translateX(-50%) rotate(-10deg);
+    }
+
+    22%{
+        top:78px;
+        transform:translateX(-50%) rotate(5deg);
+    }
+
+    40%{
+        top:155px;
+        transform:translateX(-50%) rotate(-3deg);
+    }
+
+    55%{
+        top:145px;
+        transform:translateX(-50%) rotate(5deg);
+    }
+
+    70%{
+        top:145px;
+        transform:translateX(-50%) rotate(-7deg) scaleX(1.02);
+    }
+
+    78%{
+        top:145px;
+        transform:translateX(-50%) rotate(-7deg) scaleX(.96);
+    }
+
+    82%{
+        top:145px;
+        transform:translateX(-50%) rotate(-7deg) scaleX(.2);
+        opacity:1;
+    }
+
+    83%{
+        opacity:0;
+    }
+
+    100%{
+        opacity:0;
+    }
+}
+
+.break-piece-left{
+    animation:breakLeft 1.1s 3.8s ease-out forwards;
+}
+
+.break-piece-right{
+    animation:breakRight 1.1s 3.8s ease-out forwards;
+}
+
+@keyframes breakLeft{
+    0%{
+        opacity:0;
+        transform:translate(25px,20px) rotate(0);
+    }
+    100%{
+        opacity:1;
+        transform:translate(-45px,80px) rotate(-28deg);
+    }
+}
+
+@keyframes breakRight{
+    0%{
+        opacity:0;
+        transform:translate(-25px,20px) rotate(0);
+    }
+    100%{
+        opacity:1;
+        transform:translate(45px,80px) rotate(32deg);
+    }
+}
+
+/* CRACK */
+
+.crack{
+    position:absolute;
+    left:50%;
+    top:172px;
+    font-size:48px;
+    z-index:10;
+    opacity:0;
+    animation:crackPop .7s 3.7s ease-out forwards;
+}
+
+@keyframes crackPop{
+    0%{
+        opacity:0;
+        transform:translate(-50%,-50%) scale(.2);
+    }
+    50%{
+        opacity:1;
+        transform:translate(-50%,-50%) scale(1.3);
+    }
+    100%{
+        opacity:0;
+        transform:translate(-50%,-50%) scale(1.5);
+    }
+}
+
+/* STEAM */
+
+.steam{
+    position:absolute;
+    bottom:170px;
+    font-size:35px;
+    opacity:.3;
+    animation:steam 2s ease-in-out infinite;
+}
+
+.steam1{
+    left:calc(50% - 55px);
+}
+
+.steam2{
+    left:calc(50% + 15px);
+    animation-delay:.8s;
+}
+
+@keyframes steam{
+    0%{
+        transform:translateY(20px);
+        opacity:0;
+    }
+    50%{
+        opacity:.45;
+    }
+    100%{
+        transform:translateY(-50px);
+        opacity:0;
+    }
+}
+
+/* =========================
+   RESULT
+========================= */
+
+.result-card{
+    text-align:center;
+    background:white;
+    border-radius:25px;
+    padding:40px;
+    box-shadow:var(--shadow);
+}
+
+.result-cookie{
+    font-size:75px;
+    margin-bottom:10px;
+}
+
+.result-number{
+    font-size:75px;
+    font-weight:950;
+    color:var(--orange);
+}
+
+.result-unit{
+    color:#806c58;
+    margin-bottom:20px;
+}
+
+.result-rating{
+    display:inline-block;
+    padding:10px 18px;
+    border-radius:50px;
+    background:#fff0dc;
+    font-weight:900;
+    margin-bottom:25px;
+}
+
+.result-details{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin:25px 0;
+}
+
+.detail{
+    background:#faf4eb;
+    padding:15px;
+    border-radius:13px;
+}
+
+.detail strong{
+    display:block;
+    font-size:19px;
+}
+
+.detail span{
+    color:#836e59;
+    font-size:13px;
+}
+
+/* =========================
+   BATTLE
+========================= */
+
+.battle-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+}
+
+.battle-upload{
+    text-align:center;
+}
+
+.battle-upload h3{
+    margin-bottom:15px;
+}
+
+.battle-preview{
+    height:250px;
+    background:#fff8ef;
+    border:2px dashed #d9c6ae;
+    border-radius:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    margin-bottom:15px;
+}
+
+.battle-preview img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+}
+
+.empty-preview{
+    font-size:60px;
+}
+
+.battle-result{
+    margin-top:30px;
+    text-align:center;
+    display:none;
+}
+
+.battle-result.show{
+    display:block;
+}
+
+.winner{
+    font-size:42px;
+    font-weight:950;
+    margin-bottom:8px;
+}
+
+.battle-bars{
+    max-width:600px;
+    margin:25px auto;
+}
+
+.bar-row{
+    margin-bottom:18px;
+    text-align:left;
+}
+
+.bar-label{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:6px;
+    font-weight:700;
+}
+
+.bar{
+    height:18px;
+    background:#eadfd1;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.bar-fill{
+    height:100%;
+    background:var(--orange);
+    border-radius:20px;
+}
+
+/* =========================
+   WHAT IF
+========================= */
+
+.simulator{
+    max-width:750px;
+    margin:auto;
+}
+
+.slider-group{
+    margin:25px 0;
+}
+
+.slider-header{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+    font-weight:800;
+}
+
+input[type="range"]{
+    width:100%;
+    accent-color:var(--orange);
+}
+
+.sim-result{
+    background:#fff3e1;
+    border-radius:18px;
+    padding:25px;
+    text-align:center;
+    margin-top:25px;
+}
+
+.sim-number{
+    font-size:50px;
+    font-weight:950;
+}
+
+/* =========================
+   LAB
+========================= */
+
+.lab-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+}
+
+.lab-card{
+    background:white;
+    padding:30px;
+    border-radius:22px;
+    box-shadow:var(--shadow);
+}
+
+.lab-card h3{
+    margin-bottom:20px;
+}
+
+.lab-input{
+    margin-bottom:17px;
+}
+
+.lab-input label{
+    display:block;
+    font-weight:700;
+    margin-bottom:7px;
+}
+
+.lab-input input{
+    width:100%;
+    padding:12px;
+    border:2px solid #e1d2c0;
+    border-radius:10px;
+}
+
+.lab-output{
+    background:#faf3e9;
+    padding:18px;
+    border-radius:13px;
+    margin-top:18px;
+}
+
+/* =========================
+   LEADERBOARD
+========================= */
+
+.leaderboard{
+    max-width:750px;
+    margin:auto;
+}
+
+.rank-row{
+    display:grid;
+    grid-template-columns:60px 1fr 120px;
+    align-items:center;
+    background:white;
+    margin-bottom:10px;
+    padding:18px;
+    border-radius:15px;
+    box-shadow:0 5px 20px rgba(50,30,10,.06);
+}
+
+.rank{
+    font-size:25px;
+    font-weight:950;
+}
+
+.rank-name{
+    font-weight:800;
+}
+
+.rank-time{
+    text-align:right;
+    font-weight:950;
+    color:#b8651c;
+}
+
+/* =========================
+   HOW IT WORKS
+========================= */
+
+.flow{
+    max-width:850px;
+    margin:auto;
+}
+
+.flow-item{
+    display:flex;
+    gap:25px;
+    align-items:flex-start;
+    background:white;
+    padding:25px;
+    margin-bottom:15px;
+    border-radius:18px;
+    box-shadow:var(--shadow);
+}
+
+.flow-number{
+    min-width:45px;
+    height:45px;
+    border-radius:50%;
+    background:var(--orange);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:950;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+    background:var(--dark);
+    color:white;
+    padding:35px 7%;
+    text-align:center;
+}
+
+footer span{
+    color:var(--orange);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:800px){
+
+    .navbar{
+        padding:0 4%;
+    }
+
+    .nav-links{
+        gap:0;
+    }
+
+    .nav-links button{
+        padding:8px;
+        font-size:12px;
+    }
+
+    .grid,
+    .battle-grid,
+    .lab-grid{
+        grid-template-columns:1fr;
+    }
+
+    .options{
+        grid-template-columns:1fr;
+    }
+
+    .time-options{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .result-details{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .hero-cookie{
+        display:none;
+    }
+
+    .hero h1{
+        letter-spacing:-3px;
+    }
+
+    .section-title{
+        font-size:38px;
+    }
+
+    .page{
+        padding:35px 5%;
+    }
+}
+
+@media(max-width:500px){
+
+    .logo{
+        font-size:20px;
+    }
+
+    .nav-links button:nth-child(n+4){
+        display:none;
+    }
+
+    .step-line{
+        width:25px;
+    }
+
+    .step-dot{
+        width:30px;
+        height:30px;
+        font-size:13px;
+    }
+
+    .result-number{
+        font-size:55px;
+    }
+
+    .result-details{
+        grid-template-columns:1fr;
+    }
+}
+</style>
 </head>
 
 <body>
-    <h1>Hello World! 👋</h1>
-    <p>I made this in VS Code!</p>
 
-    <button>Click me</button>
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<nav class="navbar">
+
+    <div class="logo">
+        <span class="logo-biscuit">Biscuit</span>
+        <span class="logo-hub">hub</span>
+    </div>
+
+    <div class="nav-links">
+        <button onclick="showPage('home')">Home</button>
+        <button onclick="showPage('predict')">Predict</button>
+        <button onclick="showPage('battle')">Battle</button>
+        <button onclick="showPage('whatif')">What If?</button>
+        <button onclick="showPage('lab')">Lab</button>
+        <button onclick="showPage('hall')">Hall of Fame</button>
+        <button onclick="showPage('how')">How It Works</button>
+    </div>
+
+</nav>
+
+
+<!-- =========================
+     HOME
+========================= -->
+
+<section id="home" class="page active">
+
+    <div class="hero">
+
+        <div class="hero-cookie cookie1">🍪</div>
+        <div class="hero-cookie cookie2">🍪</div>
+
+        <div class="hero-content">
+
+            <h1>
+                How long can<br>
+                your <span>biscuit</span><br>
+                survive?
+            </h1>
+
+            <p>
+                The world's unnecessarily serious biscuit
+                dunking laboratory.
+                Upload a biscuit, dunk it in tea,
+                and find out when physics finally says
+                <b>no.</b>
+            </p>
+
+            <div class="hero-buttons">
+                <button class="primary-btn"
+                        onclick="startPrediction()">
+                    🍪 Test My Biscuit
+                </button>
+
+                <button class="secondary-btn"
+                        onclick="showPage('battle')">
+                    ⚔️ Biscuit Battle
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="container" style="padding-bottom:60px">
+
+        <div class="grid">
+
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Biscuit Check</h3>
+                <p>
+                    Our highly sophisticated biscuit bureaucracy
+                    checks whether your upload is actually a biscuit.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">☕</div>
+                <h3>Tea Physics</h3>
+                <p>
+                    Temperature and immersion time influence
+                    how quickly your biscuit approaches disaster.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💥</div>
+                <h3>Structural Failure</h3>
+                <p>
+                    Eventually the biscuit reaches its breaking
+                    point. We call this science.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     PREDICT
+========================= -->
+
+<section id="predict" class="page">
+
+    <div class="container">
+
+        <h1 class="section-title">Biscuit Survival Test 🍪</h1>
+
+        <p class="section-subtitle">
+            One step at a time. No giant forms. No biscuit-related suffering.
+        </p>
+
+        <div class="wizard">
+
+            <!-- INDICATOR -->
+
+            <div class="step-indicator">
+
+                <div class="step-dot active" id="dot1">1</div>
+                <div class="step-line"></div>
+
+                <div class="step-dot" id="dot2">2</div>
+                <div class="step-line"></div>
+
+                <div class="step-dot" id="dot3">3</div>
+                <div class="step-line"></div>
+
+                <div class="step-dot" id="dot4">4</div>
+                <div class="step-line"></div>
+
+                <div class="step-dot" id="dot5">5</div>
+
+            </div>
+
+
+            <!-- STEP 1 -->
+
+            <div class="step active" id="step1">
+
+                <div class="card">
+
+                    <h2>First things first...</h2>
+
+                    <p class="step-description">
+                        Show us the biscuit. Our AI will determine whether
+                        you've submitted an actual biscuit or committed
+                        biscuit fraud.
+                    </p>
+
+                    <div class="upload-box">
+
+                        <div class="upload-icon">🍪</div>
+
+                        <h3>Upload your biscuit</h3>
+
+                        <p style="color:#806d59;margin-top:7px">
+                            JPG, PNG or WEBP
+                        </p>
+
+                        <label class="upload-label">
+                            Choose Image
+                            <input
+                                type="file"
+                                id="biscuitInput"
+                                accept="image/*"
+                                onchange="handlePredictionImage(event)"
+                            >
+                        </label>
+
+                    </div>
+
+                    <div
+                        id="predictionPreview"
+                        class="preview-container">
+                    </div>
+
+                    <div
+                        id="aiStatus"
+                        class="ai-status">
+                    </div>
+
+                    <div
+                        id="roast"
+                        class="roast">
+                    </div>
+
+                    <div class="step-controls">
+
+                        <button
+                            class="secondary-btn"
+                            onclick="showPage('home')">
+                            ← Home
+                        </button>
+
+                        <button
+                            id="step1Next"
+                            class="primary-btn next-right"
+                            disabled
+                            onclick="nextStep(2)">
+                            Continue →
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 2 -->
+
+            <div class="step" id="step2">
+
+                <div class="card">
+
+                    <h2>What's the tea situation? ☕</h2>
+
+                    <p class="step-description">
+                        Tea temperature affects how aggressively
+                        your biscuit begins its descent into chaos.
+                    </p>
+
+                    <div class="options">
+
+                        <div class="option"
+                             onclick="selectTea(this,'cold',10)">
+                            <span class="emoji">🧊</span>
+                            <strong>Cold</strong>
+                            <small>≤ 15°C</small>
+                        </div>
+
+                        <div class="option"
+                             onclick="selectTea(this,'warm',40)">
+                            <span class="emoji">🌤️</span>
+                            <strong>Warm</strong>
+                            <small>≈ 40°C</small>
+                        </div>
+
+                        <div class="option"
+                             onclick="selectTea(this,'hot',80)">
+                            <span class="emoji">🔥</span>
+                            <strong>Hot</strong>
+                            <small>≈ 80°C</small>
+                        </div>
+
+                    </div>
+
+                    <div class="step-controls">
+
+                        <button
+                            class="secondary-btn"
+                            onclick="nextStep(1)">
+                            ← Back
+                        </button>
+
+                        <button
+                            id="step2Next"
+                            class="primary-btn"
+                            disabled
+                            onclick="nextStep(3)">
+                            Continue →
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 3 -->
+
+            <div class="step" id="step3">
+
+                <div class="card">
+
+                    <h2>Now comes the dunk. ☕</h2>
+
+                    <p class="step-description">
+                        How long are you brave enough to leave
+                        your biscuit submerged?
+                    </p>
+
+                    <h3>Immersion time</h3>
+
+                    <div class="options time-options">
+
+                        <div class="option"
+                             onclick="selectTime(this,1)">
+                            <span class="emoji">⚡</span>
+                            <strong>1 sec</strong>
+                        </div>
+
+                        <div class="option"
+                             onclick="selectTime(this,3)">
+                            <span class="emoji">☕</span>
+                            <strong>3 sec</strong>
+                        </div>
+
+                        <div class="option"
+                             onclick="selectTime(this,5)">
+                            <span class="emoji">😬</span>
+                            <strong>5 sec</strong>
+                        </div>
+
+                        <div class="option"
+                             onclick="selectTime(this,8)">
+                            <span class="emoji">💀</span>
+                            <strong>8 sec</strong>
+                        </div>
+
+                    </div>
+
+                    <h3 style="margin-top:30px">
+                        Biscuit condition
+                    </h3>
+
+                    <div class="options">
+
+                        <div class="option"
+                             onclick="selectCondition(this,'intact')">
+                            <span class="emoji">✨</span>
+                            <strong>Intact</strong>
+                            <small>Fresh & strong</small>
+                        </div>
+
+                        <div class="option"
+                             onclick="selectCondition(this,'minor')">
+                            <span class="emoji">🙂</span>
+                            <strong>Minor Damage</strong>
+                            <small>Small cracks</small>
+                        </div>
+
+                        <div class="option"
+                             onclick="selectCondition(this,'damaged')">
+                            <span class="emoji">😵</span>
+                            <strong>Damaged</strong>
+                            <small>Already struggling</small>
+                        </div>
+
+                        <div class="option"
+                             onclick="selectCondition(this,'severe')">
+                            <span class="emoji">💀</span>
+                            <strong>Severe</strong>
+                            <small>Basically doomed</small>
+                        </div>
+
+                    </div>
+
+                    <div class="step-controls">
+
+                        <button
+                            class="secondary-btn"
+                            onclick="nextStep(2)">
+                            ← Back
+                        </button>
+
+                        <button
+                            id="step3Next"
+                            class="primary-btn"
+                            disabled
+                            onclick="startProcessing()">
+                            Dunk It →
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 4 PROCESSING -->
+
+            <div class="step" id="step4">
+
+                <div class="card processing-screen">
+
+                    <div class="animation-stage">
+
+                        <div class="steam steam1">〰️</div>
+                        <div class="steam steam2">〰️</div>
+
+                        <div class="dunk-biscuit"></div>
+
+                        <div class="crack">💥</div>
+
+                        <div class="biscuit-piece-left break-piece-left"></div>
+                        <div class="biscuit-piece-right break-piece-right"></div>
+
+                        <div class="cup">
+                            <div class="tea"></div>
+                        </div>
+
+                    </div>
+
+                    <h2 id="processingText">
+                        Preparing biscuit...
+                    </h2>
+
+                    <p id="processingSubtext">
+                        Please do not intervene. The biscuit has entered testing.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 5 RESULT -->
+
+            <div class="step" id="step5">
+
+                <div class="result-card">
+
+                    <div class="result-cookie">🍪</div>
+
+                    <h2>Your biscuit survives for</h2>
+
+                    <div class="result-number"
+                         id="resultNumber">
+                        --
+                    </div>
+
+                    <div class="result-unit">
+                        seconds in tea
+                    </div>
+
+                    <div class="result-rating"
+                         id="resultRating">
+                        Calculating...
+                    </div>
+
+                    <div class="result-details">
+
+                        <div class="detail">
+                            <strong id="resultTemp">--</strong>
+                            <span>Tea temperature</span>
+                        </div>
+
+                        <div class="detail">
+                            <strong id="resultImmersion">--</strong>
+                            <span>Immersion</span>
+                        </div>
+
+                        <div class="detail">
+                            <strong id="resultCondition">--</strong>
+                            <span>Condition</span>
+                        </div>
+
+                        <div class="detail">
+                            <strong id="resultConfidence">--</strong>
+                            <span>AI confidence</span>
+                        </div>
+
+                    </div>
+
+                    <p id="resultMessage"
+                       style="color:#715f4e;line-height:1.6;margin-bottom:25px">
+                    </p>
+
+                    <div class="hero-buttons">
+
+                        <button
+                            class="primary-btn"
+                            onclick="restartPrediction()">
+                            🔄 Test Another
+                        </button>
+
+                        <button
+                            class="secondary-btn"
+                            onclick="showPage('battle')">
+                            ⚔️ Battle It
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     BATTLE
+========================= -->
+
+<section id="battle" class="page">
+
+    <div class="container">
+
+        <h1 class="section-title">
+            Biscuit Battle ⚔️
+        </h1>
+
+        <p class="section-subtitle">
+            Two biscuits enter. One biscuit leaves.
+        </p>
+
+        <div class="battle-grid">
+
+            <div class="card battle-upload">
+
+                <h3>🍪 Biscuit A</h3>
+
+                <div class="battle-preview"
+                     id="battlePreviewA">
+                    <div class="empty-preview">🍪</div>
+                </div>
+
+                <label class="upload-label">
+                    Upload Biscuit A
+                    <input
+                        type="file"
+                        id="battleInputA"
+                        accept="image/*"
+                        onchange="handleBattleImage(event,'A')">
+                </label>
+
+                <div
+                    id="battleStatusA"
+                    class="ai-status">
+                </div>
+
+            </div>
+
+
+            <div class="card battle-upload">
+
+                <h3>🍪 Biscuit B</h3>
+
+                <div class="battle-preview"
+                     id="battlePreviewB">
+                    <div class="empty-preview">🍪</div>
+                </div>
+
+                <label class="upload-label">
+                    Upload Biscuit B
+                    <input
+                        type="file"
+                        id="battleInputB"
+                        accept="image/*"
+                        onchange="handleBattleImage(event,'B')">
+                </label>
+
+                <div
+                    id="battleStatusB"
+                    class="ai-status">
+                </div>
+
+            </div>
+
+        </div>
+
+        <div style="text-align:center;margin-top:25px">
+
+            <button
+                id="battleButton"
+                class="primary-btn"
+                disabled
+                onclick="runBattle()">
+                ⚔️ START BATTLE
+            </button>
+
+        </div>
+
+        <div
+            id="battleResult"
+            class="battle-result card">
+
+            <div class="winner"
+                 id="battleWinner">
+                🏆
+            </div>
+
+            <p id="battleWinnerText"></p>
+
+            <div class="battle-bars">
+
+                <div class="bar-row">
+
+                    <div class="bar-label">
+                        <span>Biscuit A</span>
+                        <span id="barValueA">0s</span>
+                    </div>
+
+                    <div class="bar">
+                        <div
+                            id="barA"
+                            class="bar-fill"
+                            style="width:0%">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="bar-row">
+
+                    <div class="bar-label">
+                        <span>Biscuit B</span>
+                        <span id="barValueB">0s</span>
+                    </div>
+
+                    <div class="bar">
+                        <div
+                            id="barB"
+                            class="bar-fill"
+                            style="width:0%">
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     WHAT IF
+========================= -->
+
+<section id="whatif" class="page">
+
+    <div class="container">
+
+        <h1 class="section-title">
+            What If? 🤔
+        </h1>
+
+        <p class="section-subtitle">
+            Mess with the physics. See what happens.
+        </p>
+
+        <div class="card simulator">
+
+            <div class="slider-group">
+
+                <div class="slider-header">
+                    <span>Tea Temperature</span>
+                    <span id="simTempValue">60°C</span>
+                </div>
+
+                <input
+                    type="range"
+                    id="simTemp"
+                    min="5"
+                    max="100"
+                    value="60"
+                    oninput="updateSimulator()">
+
+            </div>
+
+            <div class="slider-group">
+
+                <div class="slider-header">
+                    <span>Immersion Time</span>
+                    <span id="simTimeValue">3 sec</span>
+                </div>
+
+                <input
+                    type="range"
+                    id="simTime"
+                    min="1"
+                    max="15"
+                    value="3"
+                    oninput="updateSimulator()">
+
+            </div>
+
+            <div class="slider-group">
+
+                <div class="slider-header">
+                    <span>Biscuit Thickness</span>
+                    <span id="simThicknessValue">6 mm</span>
+                </div>
+
+                <input
+                    type="range"
+                    id="simThickness"
+                    min="2"
+                    max="10"
+                    value="6"
+                    oninput="updateSimulator()">
+
+            </div>
+
+            <div class="sim-result">
+
+                <p>Estimated survival</p>
+
+                <div
+                    class="sim-number"
+                    id="simResult">
+                    --
+                </div>
+
+                <span>seconds</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     EXPERIMENT LAB
+========================= -->
+
+<section id="lab" class="page">
+
+    <div class="container">
+
+        <h1 class="section-title">
+            Experiment Lab 🧪
+        </h1>
+
+        <p class="section-subtitle">
+            Change the variables and see how the model responds.
+        </p>
+
+        <div class="lab-grid">
+
+            <div class="lab-card">
+
+                <h3>Experiment Parameters</h3>
+
+                <div class="lab-input">
+                    <label>Biscuit thickness (mm)</label>
+                    <input
+                        type="number"
+                        id="labThickness"
+                        value="6"
+                        min="1"
+                        max="20">
+                </div>
+
+                <div class="lab-input">
+                    <label>Density (kg/m³)</label>
+                    <input
+                        type="number"
+                        id="labDensity"
+                        value="650"
+                        min="200"
+                        max="1200">
+                </div>
+
+                <div class="lab-input">
+                    <label>Tea temperature (°C)</label>
+                    <input
+                        type="number"
+                        id="labTemp"
+                        value="70"
+                        min="0"
+                        max="100">
+                </div>
+
+                <div class="lab-input">
+                    <label>Immersion time (sec)</label>
+                    <input
+                        type="number"
+                        id="labTime"
+                        value="3"
+                        min="1"
+                        max="30">
+                </div>
+
+                <button
+                    class="primary-btn"
+                    onclick="runLab()">
+                    Run Experiment
+                </button>
+
+            </div>
+
+            <div class="lab-card">
+
+                <h3>Experimental Output</h3>
+
+                <div class="lab-output">
+
+                    <p>Predicted survival</p>
+
+                    <strong
+                        id="labResult"
+                        style="font-size:45px">
+                        --
+                    </strong>
+
+                    <span>seconds</span>
+
+                </div>
+
+                <div class="lab-output">
+
+                    <p>
+                        Change one parameter at a time and
+                        observe how strongly it affects the
+                        result.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     HALL OF FAME
+========================= -->
+
+<section id="hall" class="page">
+
+    <div class="container">
+
+        <h1 class="section-title">
+            Biscuit Hall of Fame 🏆
+        </h1>
+
+        <p class="section-subtitle">
+            The strongest biscuits to ever enter the cup.
+        </p>
+
+        <div class="leaderboard">
+
+            <div class="rank-row">
+                <div class="rank">🥇</div>
+                <div class="rank-name">The Immortal Marie</div>
+                <div class="rank-time">18.4 sec</div>
+            </div>
+
+            <div class="rank-row">
+                <div class="rank">🥈</div>
+                <div class="rank-name">Parle-G Warrior</div>
+                <div class="rank-time">16.8 sec</div>
+            </div>
+
+            <div class="rank-row">
+                <div class="rank">🥉</div>
+                <div class="rank-name">Digestive Destroyer</div>
+                <div class="rank-time">15.2 sec</div>
+            </div>
+
+            <div class="rank-row">
+                <div class="rank">4</div>
+                <div class="rank-name">Bourbon Soldier</div>
+                <div class="rank-time">13.7 sec</div>
+            </div>
+
+            <div class="rank-row">
+                <div class="rank">5</div>
+                <div class="rank-name">The Brave Cracker</div>
+                <div class="rank-time">11.9 sec</div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     HOW IT WORKS
+========================= -->
+
+<section id="how" class="page">
+
+    <div class="container">
+
+        <h1 class="section-title">
+            How It Works 🔬
+        </h1>
+
+        <p class="section-subtitle">
+            Behind the highly questionable science.
+        </p>
+
+        <div class="flow">
+
+            <div class="flow-item">
+
+                <div class="flow-number">1</div>
+
+                <div>
+                    <h3>Upload</h3>
+
+                    <p style="color:#786756;margin-top:7px">
+                        Upload an image of your biscuit.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="flow-item">
+
+                <div class="flow-number">2</div>
+
+                <div>
+                    <h3>AI Classification</h3>
+
+                    <p style="color:#786756;margin-top:7px">
+                        The Teachable Machine classifier checks
+                        whether the image belongs to the
+                        <b>Biscuit</b> class or <b>smthgelse</b>.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="flow-item">
+
+                <div class="flow-number">3</div>
+
+                <div>
+                    <h3>Tea Conditions</h3>
+
+                    <p style="color:#786756;margin-top:7px">
+                        Tea temperature, immersion time and
+                        biscuit condition are incorporated into
+                        the prediction.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="flow-item">
+
+                <div class="flow-number">4</div>
+
+                <div>
+                    <h3>Physics Model</h3>
+
+                    <p style="color:#786756;margin-top:7px">
+                        Structural and moisture-related factors
+                        are combined to estimate the biscuit's
+                        survival time.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="flow-item">
+
+                <div class="flow-number">5</div>
+
+                <div>
+                    <h3>Structural Failure</h3>
+
+                    <p style="color:#786756;margin-top:7px">
+                        Eventually the biscuit loses enough
+                        structural integrity to break.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer>
+    <p>
+        Built with questionable amounts of engineering.
+        <span>🍪 BiscuitHub</span>
+    </p>
+</footer>
+
+
+<script>
+
+/* =====================================================
+   CONFIGURATION
+===================================================== */
+
+/*
+    IMPORTANT:
+
+    Replace YOUR_MODEL_ID with your actual Teachable
+    Machine model ID.
+
+    Example:
+
+    const MODEL_URL =
+        "https://teachablemachine.withgoogle.com/models/ABC123xyz/";
+
+*/
+
+const MODEL_URL =
+    "https://teachablemachine.withgoogle.com/models/slB7cYmYh/";
+
+
+/* =====================================================
+   GLOBAL STATE
+===================================================== */
+
+let biscuitModel = null;
+
+let predictionData = {
+    image: null,
+    confidence: 0
+};
+
+let teaTemperature = null;
+let teaName = null;
+
+let immersionTime = null;
+let biscuitCondition = null;
+
+let battleData = {
+    A: {
+        image:null,
+        confidence:0,
+        valid:false
+    },
+
+    B: {
+        image:null,
+        confidence:0,
+        valid:false
+    }
+};
+
+
+/* =====================================================
+   PAGE NAVIGATION
+===================================================== */
+
+function showPage(pageId){
+
+    document.querySelectorAll(".page")
+        .forEach(page => {
+            page.classList.remove("active");
+        });
+
+    document.getElementById(pageId)
+        .classList.add("active");
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+}
+
+
+/* =====================================================
+   PREDICTION START
+===================================================== */
+
+function startPrediction(){
+
+    showPage("predict");
+
+    resetPrediction();
+
+}
+
+
+/* =====================================================
+   WIZARD
+===================================================== */
+
+function nextStep(number){
+
+    document.querySelectorAll(".step")
+        .forEach(step => {
+            step.classList.remove("active");
+        });
+
+    document.getElementById("step"+number)
+        .classList.add("active");
+
+    for(let i=1;i<=5;i++){
+
+        const dot =
+            document.getElementById("dot"+i);
+
+        if(i <= number){
+            dot.classList.add("active");
+        }else{
+            dot.classList.remove("active");
+        }
+
+    }
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+}
+
+
+/* =====================================================
+   TEACHABLE MACHINE
+===================================================== */
+
+async function loadBiscuitModel(){
+
+    if(biscuitModel){
+        return true;
+    }
+
+    if(MODEL_URL.includes("YOUR_MODEL_ID")){
+
+        console.warn(
+            "Add your Teachable Machine model URL."
+        );
+
+        return false;
+    }
+
+    try{
+
+        biscuitModel = await tmImage.load(
+            MODEL_URL + "model.json",
+            MODEL_URL + "metadata.json"
+        );
+
+        return true;
+
+    }catch(error){
+
+        console.error(error);
+
+        return false;
+    }
+}
+
+
+/* =====================================================
+   IMAGE CLASSIFICATION
+===================================================== */
+
+async function classifyImage(imageElement){
+
+    const loaded =
+        await loadBiscuitModel();
+
+    if(!loaded){
+
+        /*
+            Demo fallback.
+
+            Remove this fallback once your actual
+            Teachable Machine model URL is inserted.
+        */
+
+        return {
+            isBiscuit:true,
+            confidence:.92
+        };
+    }
+
+    const predictions =
+        await biscuitModel.predict(imageElement);
+
+    let biscuitProbability = 0;
+    let otherProbability = 0;
+
+    predictions.forEach(prediction => {
+
+        const label =
+            prediction.className
+                .trim()
+                .toLowerCase();
+
+        if(label === "biscuit"){
+
+            biscuitProbability =
+                prediction.probability;
+
+        }else if(label === "smthgelse"){
+
+            otherProbability =
+                prediction.probability;
+        }
+
+    });
+
+    const isBiscuit =
+        biscuitProbability >= .70 &&
+        biscuitProbability > otherProbability;
+
+    return {
+        isBiscuit,
+        confidence:biscuitProbability
+    };
+}
+
+
+/* =====================================================
+   PREDICTION IMAGE
+===================================================== */
+
+async function handlePredictionImage(event){
+
+    const file =
+        event.target.files[0];
+
+    if(!file) return;
+
+    const preview =
+        document.getElementById(
+            "predictionPreview"
+        );
+
+    const status =
+        document.getElementById(
+            "aiStatus"
+        );
+
+    const roast =
+        document.getElementById(
+            "roast"
+        );
+
+    const next =
+        document.getElementById(
+            "step1Next"
+        );
+
+    next.disabled = true;
+
+    roast.classList.remove("show");
+
+    status.className =
+        "ai-status checking";
+
+    status.style.display =
+        "block";
+
+    status.textContent =
+        "🤖 Checking whether this is actually a biscuit...";
+
+    const image =
+        document.createElement("img");
+
+    image.src =
+        URL.createObjectURL(file);
+
+    image.onload = async () => {
+
+        preview.innerHTML = "";
+
+        preview.appendChild(image);
+
+        const result =
+            await classifyImage(image);
+
+        if(result.isBiscuit){
+
+            predictionData.image =
+                image;
+
+            predictionData.confidence =
+                result.confidence;
+
+            status.className =
+                "ai-status success";
+
+            status.textContent =
+                "🍪 Biscuit detected. The experiment may proceed.";
+
+            next.disabled = false;
+
+        }else{
+
+            status.className =
+                "ai-status error";
+
+            status.textContent =
+                "❌ This appears to be smthgelse.";
+
+            showRoast();
+
+            next.disabled = true;
+        }
+
+    };
+
+}
+
+
+/* =====================================================
+   ROAST MESSAGES
+===================================================== */
+
+function showRoast(){
+
+    const messages = [
+
+        "Bro uploaded a potato. 🥔",
+
+        "That's not a biscuit. Please respect the assignment. 💀",
+
+        "BISCUIT FRAUD DETECTED. 🚨",
+
+        "Nice object. Wrong species. 😭",
+
+        "Were the biscuits in the room with us?",
+
+        "The biscuit police have been notified. 🚓",
+
+        "10/10 object. 0/10 biscuit.",
+
+        "Congratulations. You have discovered smthgelse.",
+
+        "The engineering department refuses to analyse this.",
+
+        "I asked for a biscuit. You gave me... whatever this is."
+
+    ];
+
+    const roast =
+        document.getElementById("roast");
+
+    roast.textContent =
+        messages[
+            Math.floor(
+                Math.random()*messages.length
+            )
+        ];
+
+    roast.classList.add("show");
+}
+
+
+/* =====================================================
+   TEA
+===================================================== */
+
+function selectTea(element,name,temp){
+
+    document.querySelectorAll(
+        "#step2 .option"
+    ).forEach(option =>
+        option.classList.remove("selected")
+    );
+
+    element.classList.add("selected");
+
+    teaName = name;
+    teaTemperature = temp;
+
+    document.getElementById(
+        "step2Next"
+    ).disabled = false;
+}
+
+
+/* =====================================================
+   IMMERSION TIME
+===================================================== */
+
+function selectTime(element,time){
+
+    document.querySelectorAll(
+        ".time-options .option"
+    ).forEach(option =>
+        option.classList.remove("selected")
+    );
+
+    element.classList.add("selected");
+
+    immersionTime = time;
+
+    validateStep3();
+}
+
+
+/* =====================================================
+   CONDITION
+===================================================== */
+
+function selectCondition(element,condition){
+
+    document.querySelectorAll(
+        "#step3 > .card .options:not(.time-options) .option"
+    ).forEach(option =>
+        option.classList.remove("selected")
+    );
+
+    element.classList.add("selected");
+
+    biscuitCondition =
+        condition;
+
+    validateStep3();
+}
+
+
+function validateStep3(){
+
+    document.getElementById(
+        "step3Next"
+    ).disabled =
+        !(immersionTime && biscuitCondition);
+}
+
+
+/* =====================================================
+   PROCESSING
+===================================================== */
+
+function startProcessing(){
+
+    nextStep(4);
+
+    const text =
+        document.getElementById(
+            "processingText"
+        );
+
+    const subtext =
+        document.getElementById(
+            "processingSubtext"
+        );
+
+    text.textContent =
+        "Dunking biscuit...";
+
+    subtext.textContent =
+        "Tea penetration detected. Structural integrity declining.";
+
+    setTimeout(() => {
+
+        text.textContent =
+            "Biscuit is breaking...";
+
+        subtext.textContent =
+            "This is going exactly as badly as expected.";
+
+    },3200);
+
+    setTimeout(() => {
+
+        text.textContent =
+            "Analysis complete.";
+
+        subtext.textContent =
+            "The biscuit has made its final contribution to science.";
+
+    },4600);
+
+    setTimeout(() => {
+
+        finishAnalysis();
+
+    },5200);
+}
+
+
+/* =====================================================
+   PHYSICS MODEL
+===================================================== */
+
+function physicsModel(
+    thickness,
+    density,
+    temperature,
+    immersionTime,
+    condition
+){
+
+    let temperatureFactor;
+
+    if(temperature <= 15){
+
+        temperatureFactor = 1;
+
+    }else if(temperature <= 50){
+
+        temperatureFactor = .82;
+
+    }else{
+
+        temperatureFactor = .62;
+    }
+
+    const moistureFactor =
+        Math.exp(
+            -.045 * immersionTime
+        );
+
+    const conditionFactors = {
+
+        intact:1,
+
+        minor:.82,
+
+        damaged:.60,
+
+        severe:.35
+
+    };
+
+    const structuralFactor =
+        conditionFactors[condition] || 1;
+
+    const thicknessEffect =
+        Math.pow(
+            thickness / 6,
+            2.7
+        );
+
+    const densityEffect =
+        Math.sqrt(
+            650 / density
+        );
+
+    let survival =
+        6 *
+        thicknessEffect *
+        densityEffect *
+        temperatureFactor *
+        moistureFactor *
+        structuralFactor;
+
+    return Math.max(
+        .3,
+        Math.min(
+            survival,
+            60
+        )
+    );
+}
+
+
+/* =====================================================
+   IMAGE-BASED PROTOTYPE PARAMETERS
+===================================================== */
+
+/*
+    IMPORTANT:
+
+    These are temporary estimates.
+
+    A normal 2D photograph cannot reliably provide
+    absolute biscuit thickness or density without
+    additional calibration or a trained estimation model.
+
+    Replace this function later with your actual
+    computer-vision / ML estimation pipeline.
+*/
+
+function estimateBiscuitProperties(){
+
+    return {
+
+        thickness:
+            4.5 + Math.random()*3,
+
+        density:
+            600 + Math.random()*120
+
+    };
+}
+
+
+/* =====================================================
+   FINISH ANALYSIS
+===================================================== */
+
+function finishAnalysis(){
+
+    const properties =
+        estimateBiscuitProperties();
+
+    const survival =
+        physicsModel(
+            properties.thickness,
+            properties.density,
+            teaTemperature,
+            immersionTime,
+            biscuitCondition
+        );
+
+    document.getElementById(
+        "resultNumber"
+    ).textContent =
+        survival.toFixed(1);
+
+    document.getElementById(
+        "resultTemp"
+    ).textContent =
+        teaTemperature + "°C";
+
+    document.getElementById(
+        "resultImmersion"
+    ).textContent =
+        immersionTime + " sec";
+
+    document.getElementById(
+        "resultCondition"
+    ).textContent =
+        capitalize(
+            biscuitCondition
+        );
+
+    document.getElementById(
+        "resultConfidence"
+    ).textContent =
+        Math.round(
+            predictionData.confidence*100
+        ) + "%";
+
+    let rating;
+    let message;
+
+    if(survival < 2){
+
+        rating = "💀 Extremely Fragile";
+
+        message =
+            "Your biscuit barely had time to understand what tea was.";
+
+    }else if(survival < 5){
+
+        rating = "😬 Dangerously Fragile";
+
+        message =
+            "A respectable dunk, but things are getting structurally questionable.";
+
+    }else if(survival < 10){
+
+        rating = "😎 Solid Performer";
+
+        message =
+            "This biscuit has some fight in it.";
+
+    }else if(survival < 18){
+
+        rating = "🗿 Biscuit Tank";
+
+        message =
+            "Now THAT is a biscuit with structural integrity.";
+
+    }else{
+
+        rating = "👑 Biscuit Legend";
+
+        message =
+            "Scientists are requesting a sample of this biscuit.";
+
+    }
+
+    document.getElementById(
+        "resultRating"
+    ).textContent =
+        rating;
+
+    document.getElementById(
+        "resultMessage"
+    ).textContent =
+        message;
+
+    nextStep(5);
+}
+
+
+/* =====================================================
+   RESET PREDICTION
+===================================================== */
+
+function resetPrediction(){
+
+    teaTemperature = null;
+    teaName = null;
+    immersionTime = null;
+    biscuitCondition = null;
+
+    predictionData = {
+        image:null,
+        confidence:0
+    };
+
+    document.getElementById(
+        "biscuitInput"
+    ).value = "";
+
+    document.getElementById(
+        "predictionPreview"
+    ).innerHTML = "";
+
+    document.getElementById(
+        "aiStatus"
+    ).style.display = "none";
+
+    document.getElementById(
+        "roast"
+    ).classList.remove("show");
+
+    document.getElementById(
+        "step1Next"
+    ).disabled = true;
+
+    document.getElementById(
+        "step2Next"
+    ).disabled = true;
+
+    document.getElementById(
+        "step3Next"
+    ).disabled = true;
+
+    document.querySelectorAll(
+        ".option"
+    ).forEach(option =>
+        option.classList.remove("selected")
+    );
+
+    nextStep(1);
+}
+
+
+function restartPrediction(){
+
+    resetPrediction();
+
+    showPage("predict");
+}
+
+
+/* =====================================================
+   BATTLE IMAGE UPLOAD
+===================================================== */
+
+async function handleBattleImage(event,side){
+
+    const file =
+        event.target.files[0];
+
+    if(!file) return;
+
+    const preview =
+        document.getElementById(
+            "battlePreview"+side
+        );
+
+    const status =
+        document.getElementById(
+            "battleStatus"+side
+        );
+
+    status.className =
+        "ai-status checking";
+
+    status.style.display =
+        "block";
+
+    status.textContent =
+        "🤖 Checking biscuit...";
+
+    const image =
+        document.createElement("img");
+
+    image.src =
+        URL.createObjectURL(file);
+
+    image.onload = async () => {
+
+        preview.innerHTML = "";
+
+        preview.appendChild(image);
+
+        const result =
+            await classifyImage(image);
+
+        if(result.isBiscuit){
+
+            battleData[side].image =
+                image;
+
+            battleData[side].confidence =
+                result.confidence;
+
+            battleData[side].valid =
+                true;
+
+            status.className =
+                "ai-status success";
+
+            status.textContent =
+                "🍪 Biscuit confirmed.";
+
+        }else{
+
+            battleData[side].valid =
+                false;
+
+            status.className =
+                "ai-status error";
+
+            status.textContent =
+                "❌ smthgelse detected.";
+
+        }
+
+        updateBattleButton();
+
+    };
+
+}
+
+
+/* =====================================================
+   BATTLE BUTTON
+===================================================== */
+
+function updateBattleButton(){
+
+    document.getElementById(
+        "battleButton"
+    ).disabled =
+        !(
+            battleData.A.valid &&
+            battleData.B.valid
+        );
+}
+
+
+/* =====================================================
+   BATTLE
+===================================================== */
+
+function runBattle(){
+
+    const survivalA =
+        generateBattleSurvival(
+            battleData.A.confidence
+        );
+
+    const survivalB =
+        generateBattleSurvival(
+            battleData.B.confidence
+        );
+
+    const max =
+        Math.max(
+            survivalA,
+            survivalB
+        );
+
+    document.getElementById(
+        "barValueA"
+    ).textContent =
+        survivalA.toFixed(1)+"s";
+
+    document.getElementById(
+        "barValueB"
+    ).textContent =
+        survivalB.toFixed(1)+"s";
+
+    document.getElementById(
+        "barA"
+    ).style.width =
+        (survivalA/max*100)+"%";
+
+    document.getElementById(
+        "barB"
+    ).style.width =
+        (survivalB/max*100)+"%";
+
+    let winner;
+
+    if(survivalA > survivalB){
+
+        winner = "🍪 Biscuit A Wins!";
+
+    }else if(survivalB > survivalA){
+
+        winner = "🍪 Biscuit B Wins!";
+
+    }else{
+
+        winner = "🤝 It's a Tie!";
+    }
+
+    document.getElementById(
+        "battleWinner"
+    ).textContent =
+        winner;
+
+    document.getElementById(
+        "battleWinnerText"
+    ).textContent =
+        survivalA > survivalB
+        ? "Biscuit A has superior dunk resistance."
+        : survivalB > survivalA
+        ? "Biscuit B has superior dunk resistance."
+        : "Both biscuits achieved identical structural performance.";
+
+    document.getElementById(
+        "battleResult"
+    ).classList.add("show");
+}
+
+
+function generateBattleSurvival(confidence){
+
+    const thickness =
+        4.5 + Math.random()*3;
+
+    const density =
+        600 + Math.random()*120;
+
+    return physicsModel(
+        thickness,
+        density,
+        70,
+        3,
+        "intact"
+    ) * (.9 + confidence*.1);
+}
+
+
+/* =====================================================
+   WHAT IF SIMULATOR
+===================================================== */
+
+function updateSimulator(){
+
+    const temp =
+        Number(
+            document.getElementById(
+                "simTemp"
+            ).value
+        );
+
+    const time =
+        Number(
+            document.getElementById(
+                "simTime"
+            ).value
+        );
+
+    const thickness =
+        Number(
+            document.getElementById(
+                "simThickness"
+            ).value
+        );
+
+    document.getElementById(
+        "simTempValue"
+    ).textContent =
+        temp+"°C";
+
+    document.getElementById(
+        "simTimeValue"
+    ).textContent =
+        time+" sec";
+
+    document.getElementById(
+        "simThicknessValue"
+    ).textContent =
+        thickness+" mm";
+
+    const result =
+        physicsModel(
+            thickness,
+            650,
+            temp,
+            time,
+            "intact"
+        );
+
+    document.getElementById(
+        "simResult"
+    ).textContent =
+        result.toFixed(1);
+}
+
+
+/* =====================================================
+   LAB
+===================================================== */
+
+function runLab(){
+
+    const thickness =
+        Number(
+            document.getElementById(
+                "labThickness"
+            ).value
+        );
+
+    const density =
+        Number(
+            document.getElementById(
+                "labDensity"
+            ).value
+        );
+
+    const temp =
+        Number(
+            document.getElementById(
+                "labTemp"
+            ).value
+        );
+
+    const time =
+        Number(
+            document.getElementById(
+                "labTime"
+            ).value
+        );
+
+    const result =
+        physicsModel(
+            thickness,
+            density,
+            temp,
+            time,
+            "intact"
+        );
+
+    document.getElementById(
+        "labResult"
+    ).textContent =
+        result.toFixed(2)+" s";
+}
+
+
+/* =====================================================
+   UTILITIES
+===================================================== */
+
+function capitalize(text){
+
+    return text.charAt(0).toUpperCase() +
+           text.slice(1);
+}
+
+
+/* =====================================================
+   INITIALISE
+===================================================== */
+
+updateSimulator();
+
+</script>
+
 </body>
 </html>
